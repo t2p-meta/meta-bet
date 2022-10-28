@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./MetaBetDomain.sol";
+import "./MetaBetNFT721Domain.sol";
 
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/18c7efe800df6fc19554ece3b1f238e9e028a1db/contracts/token/ERC721/ERC721.sol";
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/18c7efe800df6fc19554ece3b1f238e9e028a1db/contracts/utils/Counters.sol";
@@ -16,7 +16,7 @@ import "./MetaBetDomain.sol";
 /*
  * @notice SmartBet core smart contract. Handles matches, bets and farming
  */
-contract MetaBetNFT721 is ERC721,MetaBetDomain {
+contract MetaBetNFT721 is ERC721, MetaBetNFT721Domain {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 

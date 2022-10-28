@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-// import "@chainlink/contracts/src/v0.7/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 // import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -42,24 +42,24 @@ contract MetaBet is MetaBetDomain {
     bool circuitBreaker = false;
 
     // holds all NFTs issued to winners
-    mapping(uint256 => SmartAsset) smartAssets;
+    mapping(uint256 => SmartAsset) smartAssets; // 押注表
 
     // holds all created matches (key: idCounter)
-    mapping(uint256 => Match) matches;
+    mapping(uint256 => Match) matches; // 赛程表
 
     // holds all apiMatchId -> onChainMatchId to prevent duplicate entries
-    mapping(uint256 => uint256) apiMatches;
+    mapping(uint256 => uint256) apiMatches; // 同一个赛程Id可能从不同的网站获取赔率
 
     // holds all bets on a match
     // mapping(matchId => mapping(gameResult => smartAssetId[])) matchBets;
     mapping(uint256 => mapping(MatchResult => uint256[])) matchBets;
 
-    mapping(bytes32 => uint256) matchResultRequestIds;
+    // mapping(bytes32 => uint256) matchResultRequestIds;
 
     mapping(address => uint256[]) private matchesBetted;
 
-    // Mapping from token ID to owner address
-    mapping(uint256 => address) private _owners;
+    // Mapping from smartAssetId to owner address
+    mapping(uint256 => address) private _owners; // 关联关系
 
     // Token Balance = 蓝钻数量
     mapping(address => uint256) public tokenBalance;
@@ -105,7 +105,9 @@ contract MetaBet is MetaBetDomain {
         uint256 smartAssetId,
         uint256 awardedAt,
         AssetType assetType,
-        address payToken
+        address payToken,
+        // 实时押注金额信息
+        RealTimeAmount realTimeAmount
     );
     event MatchClosedEvent(
         address indexed by,
@@ -115,7 +117,9 @@ contract MetaBet is MetaBetDomain {
     event MatchResultSetEvent(
         uint256 indexed matchId,
         MatchResult result,
-        uint256 setAt
+        uint256 setAt,
+        uint8 scoreTeamA,
+        uint8 scoreTeamB
     );
     event AssetLiquidatedEvent(
         address indexed by,
@@ -302,59 +306,62 @@ contract MetaBet is MetaBetDomain {
                 amountBet
             );
         }
-
         matchIds.increment();
         uint256 matchId = matchIds.current();
+        RealTimeAmount memory realTimeAmount = RealTimeAmount(
+            _matchInfo.initOddsTeamA,
+            _matchInfo.initOddsTeamB,
+            _matchInfo.initOddsDraw
+        );
 
         // 初始化A队押注金额
-        uint256 initOddsASmartAssetId = awardSmartAsset(
+        awardBetSmartAsset(
             msg.sender,
-            _matchInfo.initOddsTeamA,
             matchId,
             MatchResult.TEAM_A_WON,
             _matchInfo.assetType,
-            _matchInfo.payToken
+            _matchInfo.payToken,
+            _matchInfo.initOddsTeamA,
+            realTimeAmount
         );
-        matchesBetted[msg.sender].push(initOddsASmartAssetId);
-        matchBets[matchId][MatchResult.TEAM_A_WON].push(initOddsASmartAssetId);
         // 初始化B队押注金额
-        uint256 initOddsBSmartAssetId = awardSmartAsset(
+        awardBetSmartAsset(
             msg.sender,
-            _matchInfo.initOddsTeamB,
             matchId,
             MatchResult.TEAM_B_WON,
             _matchInfo.assetType,
-            _matchInfo.payToken
+            _matchInfo.payToken,
+            _matchInfo.initOddsTeamB,
+            realTimeAmount
         );
-        matchesBetted[msg.sender].push(initOddsBSmartAssetId);
-        matchBets[matchId][MatchResult.TEAM_B_WON].push(initOddsBSmartAssetId);
         // 初始化平押注金额
-        uint256 initOddsOSmartAssetId = awardSmartAsset(
+        awardBetSmartAsset(
             msg.sender,
-            _matchInfo.initOddsDraw,
             matchId,
             MatchResult.DRAW,
             _matchInfo.assetType,
-            _matchInfo.payToken
+            _matchInfo.payToken,
+            _matchInfo.initOddsDraw,
+            realTimeAmount
         );
 
-        matchesBetted[msg.sender].push(initOddsOSmartAssetId);
-        matchBets[matchId][MatchResult.DRAW].push(initOddsOSmartAssetId);
-
+        apiMatches[_apiMatchId] = matchId;
         matches[matchId] = Match(
             msg.sender,
             _matchResultLink,
             _matchInfo.initOddsTeamA,
             _matchInfo.initOddsTeamB,
             _matchInfo.initOddsDraw,
-            amountBet,
-            MatchResult.NOT_DETERMINED,
-            MatchState.NOT_STARTED,
+            0,
             true,
-            _matchInfo
+            0, // A队得分 A 0
+            0, // B队得分 scoreB 0
+            0, // 最终赢率（含本金） finalOdds 0
+            tokenIds.current(), // 下注Id （最终下注ID）（chainlink取值后查询下注ID）
+            _matchInfo, // 比赛信息
+            MatchResult.NOT_DETERMINED, // 比赛结果
+            MatchState.NOT_STARTED // 押注赛程状态
         );
-        apiMatches[_apiMatchId] = matchId;
-
         emitMatchCreatedEvent(matchId, _apiMatchId, _matchInfo);
         return matchId;
     }
@@ -422,7 +429,7 @@ contract MetaBet is MetaBetDomain {
             payable(address(this)).transfer(amountBet);
         }
         if (_payAsset.assetType == AssetType.ERC20) {
-            amountBet = _payAsset.payValue;
+            amountBet = _payAsset.payAmount;
             IERC20(_payAsset.payToken).transferFrom(
                 msg.sender,
                 address(this),
@@ -445,25 +452,26 @@ contract MetaBet is MetaBetDomain {
                 .add(amountBet);
         }
 
-        //increase totalCollected on the match
-        matches[_matchId].totalCollected = matches[_matchId].totalCollected.add(
-            amountBet
+        RealTimeAmount memory realTimeAmount = RealTimeAmount(
+            matches[_matchId].totalPayoutTeamA,
+            matches[_matchId].totalPayoutTeamB,
+            matches[_matchId].totalPayoutDraw
         );
 
         // 将押注金额mint成一个NFT作为流动性质押凭证，通过凭证质押获取额外利息
         uint256 smartAssetId = awardSmartAsset(
             msg.sender,
-            amountBet,
             _matchId,
             matchResultBetOn,
-            _payAsset.assetType,
-            _payAsset.payToken
+            _payAsset,
+            realTimeAmount
         );
 
         matchesBetted[msg.sender].push(smartAssetId);
         //Save bettor's bet
         matchBets[_matchId][matchResultBetOn].push(smartAssetId);
-
+        // 更新押注ID
+        matches[_matchId].finalAssetId = smartAssetId;
         emit BetPlacedEvent(
             msg.sender,
             _matchId,
@@ -477,40 +485,67 @@ contract MetaBet is MetaBetDomain {
     }
 
     /**
-     * mint nft staking your balance
+    设置押注信息
+     */
+    function awardBetSmartAsset(
+        address bettor,
+        uint256 matchId,
+        MatchResult matchResultBetOn,
+        AssetType payType,
+        address payToken,
+        uint256 assetValue,
+        RealTimeAmount memory realTimeAmount
+    ) internal {
+        PayAsset memory payAsset = PayAsset(payType, payToken, assetValue);
+        uint256 smartAssetId = awardSmartAsset(
+            bettor,
+            matchId,
+            matchResultBetOn,
+            payAsset,
+            realTimeAmount
+        );
+        matchesBetted[bettor].push(smartAssetId);
+        matchBets[matchId][matchResultBetOn].push(smartAssetId);
+    }
+
+    /**
+     * 设置押注信息
      */
     function awardSmartAsset(
         address bettor,
-        uint256 assetValue,
-        uint256 _matchId,
-        MatchResult _matchResultBetOn,
-        AssetType _payAsset,
-        address _payToken
+        uint256 matchId,
+        MatchResult matchResultBetOn,
+        PayAsset memory payAsset,
+        RealTimeAmount memory realTimeAmount
     ) internal returns (uint256) {
         tokenIds.increment();
 
         uint256 smartAssetId = tokenIds.current();
         // _mint(bettor, smartAssetId);
         // 创建资产白条押注关联关系
-        _owners[smartAssetId] = msg.sender;
+        _owners[smartAssetId] = bettor;
 
         smartAssets[smartAssetId] = SmartAsset(
-            msg.sender,
-            _matchId,
-            _matchResultBetOn,
-            assetValue, // 押注金额
-            0, // 赢取额外金额
-            _payAsset,
-            _payToken
+            bettor,
+            matchId,
+            matchResultBetOn, // 押注 哪一方
+            payAsset, // ETH 或ERC20 实付币种 // USDC
+            realTimeAmount, // 实时押注时间节点累计总金额：A B O
+            0, // 累计利息
+            block.timestamp, // bet_timestamp :下注时间
+            0, // 手续费金额
+            0, // withdraw_到手提款金额
+            0 // withdraw_timestamp提取时间
         );
 
         emit SmartAssetAwardedEvent(
             bettor,
-            _matchId,
+            matchId,
             smartAssetId,
             block.timestamp,
-            _payAsset,
-            _payToken
+            payAsset.assetType,
+            payAsset.payToken,
+            realTimeAmount
         );
 
         return smartAssetId;
@@ -526,30 +561,35 @@ contract MetaBet is MetaBetDomain {
         uint256 totalPayoutTeamA = matches[_matchId].totalPayoutTeamA;
         uint256 totalPayoutTeamB = matches[_matchId].totalPayoutTeamB;
         uint256 totalPayoutDraw = matches[_matchId].totalPayoutDraw;
-        // TeamA最终赔率
-        matches[_matchId].matchInfo.oddsTeamA =
-            calculateAssetOdds(
-                totalPayoutDraw,
-                totalPayoutTeamB,
-                totalPayoutTeamA
-            ) +
-            100;
-        // TeamB最终赔率
-        matches[_matchId].matchInfo.oddsTeamB =
-            calculateAssetOdds(
-                totalPayoutDraw,
-                totalPayoutTeamA,
-                totalPayoutTeamB
-            ) +
-            100;
-        // TeamA和TeamB平局最终赔率
-        matches[_matchId].matchInfo.oddsDraw =
-            calculateAssetOdds(
-                totalPayoutTeamB,
-                totalPayoutTeamA,
-                totalPayoutDraw
-            ) +
-            100;
+
+        if (matches[_matchId].result == MatchResult.TEAM_A_WON) {
+            // TeamA最终赔率
+            matches[_matchId].finalOdds =
+                calculateAssetOdds(
+                    totalPayoutDraw,
+                    totalPayoutTeamB,
+                    totalPayoutTeamA
+                ) +
+                100;
+        } else if (matches[_matchId].result == MatchResult.TEAM_B_WON) {
+            // TeamB最终赔率
+            matches[_matchId].finalOdds =
+                calculateAssetOdds(
+                    totalPayoutDraw,
+                    totalPayoutTeamA,
+                    totalPayoutTeamB
+                ) +
+                100;
+        } else {
+            // TeamA和TeamB平局最终赔率
+            matches[_matchId].finalOdds =
+                calculateAssetOdds(
+                    totalPayoutTeamB,
+                    totalPayoutTeamA,
+                    totalPayoutDraw
+                ) +
+                100;
+        }
     }
 
     function calculateAssetOdds(
@@ -584,7 +624,12 @@ contract MetaBet is MetaBetDomain {
      *  @param
      *  @return  success success status
      */
-    function closeMatch(uint256 _matchId, uint8 _matchResult)
+    function closeMatch(
+        uint256 _matchId,
+        uint8 _matchResult,
+        uint8 scoreTeamA,
+        uint8 scoreTeamB
+    )
         public
         onlyOwner
         matchExists(_matchId)
@@ -596,7 +641,7 @@ contract MetaBet is MetaBetDomain {
         // getMatchResult(_matchId);
         MatchResult matchResult = MatchResult(_matchResult);
         // 设置比赛结果
-        setMatchResult(_matchId, matchResult);
+        setMatchResult(_matchId, matchResult, scoreTeamA, scoreTeamB);
 
         if (matchResult == MatchResult.TEAM_A_WON) {
             invalidateAssets(matchBets[_matchId][MatchResult.TEAM_B_WON]);
@@ -612,14 +657,19 @@ contract MetaBet is MetaBetDomain {
         emit MatchClosedEvent(msg.sender, _matchId, block.timestamp);
     }
 
-    function setMatchResult(uint256 _matchId, MatchResult _matchResult)
-        internal
-    {
+    function setMatchResult(
+        uint256 _matchId,
+        MatchResult _matchResult,
+        uint8 scoreTeamA,
+        uint8 scoreTeamB
+    ) internal {
         matches[_matchId].result = _matchResult;
         emit MatchResultSetEvent(
             _matchId,
             matches[_matchId].result,
-            block.timestamp
+            block.timestamp,
+            scoreTeamA,
+            scoreTeamB
         );
     }
 
@@ -632,6 +682,10 @@ contract MetaBet is MetaBetDomain {
     // 销毁押注关联关系
     function invalidateAsset(uint256 _smartAssetId) internal {
         _burn(_smartAssetId);
+    }
+
+    function _burn(uint256 _smartAssetId) internal virtual {
+        delete _owners[_smartAssetId];
     }
 
     /*
@@ -656,58 +710,78 @@ contract MetaBet is MetaBetDomain {
         // 获取比赛结果
         MatchResult matchResult = matches[smartAsset.matchId].result;
 
-        uint256 lastWinValue = smartAsset.initialValue;
+        uint256 lastWinValue = smartAsset.betInfo.payAmount;
         // 提取赢得的押注资产
         if (matchResult == smartAsset.matchResult) {
-            // 获取赔率
-            uint32 lastBetOdds = 1;
-            if (matchResult == MatchResult.TEAM_A_WON) {
-                lastBetOdds = matches[smartAsset.matchId].matchInfo.oddsTeamA;
-            } else if (matchResult == MatchResult.TEAM_B_WON) {
-                lastBetOdds = matches[smartAsset.matchId].matchInfo.oddsTeamB;
-            } else if (matchResult == MatchResult.DRAW) {
-                lastBetOdds = matches[smartAsset.matchId].matchInfo.oddsDraw;
-            }
+            // 获取最终赔率
+            uint256 lastBetOdds = matches[smartAsset.matchId].finalOdds;
             // 计算最终获取金额
-            lastWinValue = smartAsset.initialValue.mul(lastBetOdds).div(100);
+            lastWinValue = lastWinValue.mul(lastBetOdds).div(100);
         }
 
-        if (smartAsset.assetType == AssetType.ETH) {
+        // 手续费金额
+        uint256 feesAmount = lastWinValue
+            .mul(matches[smartAsset.matchId].matchInfo.winnerFeeRate)
+            .div(100);
+        // withdraw_到手提款金额
+        uint256 withdrawAmount = lastWinValue.sub(feesAmount);
+
+        if (smartAsset.betInfo.assetType == AssetType.ETH) {
             require(
-                address(this).balance >= smartAsset.initialValue,
+                address(this).balance >= smartAsset.betInfo.payAmount,
                 "Contract has insufficient funds"
             );
             if (address(this).balance < lastWinValue) {
                 lastWinValue = address(this).balance;
             }
             invalidateAsset(_smartAssetId);
-            payable(msg.sender).transfer(lastWinValue);
+            // 用户提款
+            payable(msg.sender).transfer(withdrawAmount);
+            // 给比赛发起者转账佣金
+            payable(matches[smartAsset.matchId].creator).transfer(feesAmount);
         }
-        if (smartAsset.assetType == AssetType.ERC20) {
+        if (smartAsset.betInfo.assetType == AssetType.ERC20) {
             require(
-                IERC20(smartAsset.payToken).balanceOf(address(this)) >=
-                    smartAsset.initialValue,
+                IERC20(smartAsset.betInfo.payToken).balanceOf(address(this)) >=
+                    smartAsset.betInfo.payAmount,
                 "Contract has Token insufficient funds"
             );
             if (
-                IERC20(smartAsset.payToken).balanceOf(address(this)) <
+                IERC20(smartAsset.betInfo.payToken).balanceOf(address(this)) <
                 lastWinValue
             ) {
-                lastWinValue = IERC20(smartAsset.payToken).balanceOf(
+                lastWinValue = IERC20(smartAsset.betInfo.payToken).balanceOf(
                     address(this)
                 );
             }
             invalidateAsset(_smartAssetId);
-            IERC20(smartAsset.payToken).transfer(msg.sender, lastWinValue);
+            // 用户提款
+            IERC20(smartAsset.betInfo.payToken).transfer(
+                msg.sender,
+                withdrawAmount
+            );
+            // 给比赛发起者转账佣金
+            IERC20(smartAsset.betInfo.payToken).transfer(
+                matches[smartAsset.matchId].creator,
+                feesAmount
+            );
         }
+        //totalCollected; 每取一笔更新对账结果
+        matches[smartAsset.matchId].totalWithDraw = matches[smartAsset.matchId]
+            .totalWithDraw
+            .add(lastWinValue);
+        // withdraw_到手提款金额
+        smartAsset.withdrawAmount = withdrawAmount;
+        // withdraw_timestamp提取时间
+        smartAsset.withdrawTimestamp = block.timestamp;
 
         emit AssetLiquidatedEvent(
             msg.sender,
             smartAsset.matchId,
-            smartAsset.initialValue,
+            smartAsset.betInfo.payAmount,
             block.timestamp,
-            smartAsset.assetType,
-            smartAsset.payToken
+            smartAsset.betInfo.assetType,
+            smartAsset.betInfo.payToken
         );
         return true;
     }
@@ -783,15 +857,60 @@ contract MetaBet is MetaBetDomain {
         return _owners[tokenId] != address(0);
     }
 
-    function _burn(uint256 _smartAssetId) internal virtual {
-        delete _owners[_smartAssetId];
-    }
-
     /**
      * ownerMatchesBets
      */
     function ownerMatchesBets() public view virtual returns (uint256[] memory) {
         return matchesBetted[msg.sender];
+    }
+
+    /* Allow owner to get the data of stored games */
+    function getData() public onlyOwner {
+        // for(uint i = 0; i < numGames; i++){
+        //     string memory id = string(abi.encodePacked(gameIds[i]));
+        //Get home team
+        // Chainlink.Request memory reqHome = buildChainlinkRequest(BYTES_JOB,
+        //     address(this), this.storeHomeData.selector);
+        // reqHome.add("get", string(abi.encodePacked(
+        //         "https://www.balldontlie.io/api/v1/games/", id)));
+        // reqHome.add("path", "home_team.full_name");
+        // sendChainlinkRequestTo(ORACLE_ADDRESS, reqHome, LINK_PAYMENT);
+        // homeTeam[gameIds[i]] = tempHomeTeam;
+        //Get visitor team
+        // Chainlink.Request memory reqVisitor = buildChainlinkRequest(
+        //     BYTES_JOB, address(this), this.storeVisitorData.selector);
+        // reqVisitor.add("get", string(abi.encodePacked(
+        //         "https://www.balldontlie.io/api/v1/games/", id)));
+        // reqVisitor.add("path", "visitor_team.full_name");
+        // sendChainlinkRequestTo(ORACLE_ADDRESS, reqVisitor, LINK_PAYMENT);
+        // visitorTeam[gameIds[i]] = tempVisitorTeam;
+        // //Get game date
+        // Chainlink.Request memory reqDate = buildChainlinkRequest(BYTES_JOB,
+        //     address(this), this.storeDateData.selector);
+        // reqDate.add("get", string(abi.encodePacked(
+        //         "https://www.balldontlie.io/api/v1/games/", id)));
+        // reqDate.add("path", "date");
+        // sendChainlinkRequestTo(ORACLE_ADDRESS, reqDate, LINK_PAYMENT);
+        // gameDate[gameIds[i]] = tempGameDate;
+        //Get game status
+        // Chainlink.Request memory reqStatus = buildChainlinkRequest(
+        //     BYTES_JOB,
+        //     address(this),
+        //     this.storeStatusData.selector
+        // );
+        // reqStatus.add(
+        //     "get",
+        //     string(
+        //         abi.encodePacked(
+        //             "https://api-football-v1.p.rapidapi.com/v2/fixtures/id/157508",
+        //             id
+        //         )
+        //     )
+        // );
+        // reqStatus.add("path", "status");
+        // sendChainlinkRequestTo(ORACLE_ADDRESS, reqStatus, LINK_PAYMENT);
+        // gameStatus[gameIds[i]] = tempGameStatus;
+        // }
     }
 
     receive() external payable {}

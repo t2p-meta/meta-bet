@@ -19,7 +19,7 @@
     "util-deprecate": "^1.0.2"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.1.6",
+    "@chainlink/contracts": "^0.5.1",
     "@openzeppelin/contracts": "4.7.3",
     "@pinata/sdk": "^1.1.23",
     "keccak256": "^1.0.6",
