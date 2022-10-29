@@ -1,0 +1,74 @@
+######################
+## draw.io compatible CSV.
+##    to import, visit draw.io and goto: Arrange -> Insert -> Advanced -> CSV ... 
+##
+##
+## GENERATOR: https://marketplace.visualstudio.com/items?itemName=tintinweb.solidity-visual-auditor
+######################
+# label: %label%
+# parentstyle: swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=%fill%;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeColor=#000000;strokeWidth=1;fontFamily=Verdana;fontSize=12;fontColor=#000000;arcSize=20;
+# style: shape=%type%;html=1;fillColor=%fill%;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=10;align=left;%override%
+# namespace: sva-1667009637603
+# width: auto
+# height: auto
+# ignore: id,shape,fill,stroke,refs
+# identity: id
+# parent: rparent
+## padding: 40
+## nodespacing: 40
+## levelspacing: 40
+## edgespacing: 40
+## layout: horizontalflow
+# connect: {"from": "refs", "to": "id", "style": "curved=1;fontSize=11;noEdgeStyle=1;strokeColor=#6666FF;dashed=1;dashPattern=1 4;"}
+# connect: {"from": "calls", "to": "id", "style": "curved=1;fontSize=11;noEdgeStyle=1;strokeColor=#6666FF;dashed=0;dashPattern=1 4;"}
+## CSV data starts below this line
+## id,rparent,label, type, fill, override, refs
+id,rparent,label,type,fill,override,refs
+0,-,MetaBet,,#e0e0e0,,
+0_i0,0,MetaBetDomain,mxgraph.bootstrap.rrect;strokeColor=none,#fff2cc;strokeColor=#d6b656;dashed=1,fontSize=6,
+0_u0,0,Counters,mxgraph.bootstrap.rrect,#E3F7E2;strokeColor=#82b366;dashed=1,fontSize=6,
+0_u1,0,SafeMath,mxgraph.bootstrap.rrect,#E3F7E2;strokeColor=#82b366;dashed=1,fontSize=6,
+0_f0,0,<b>__constr__<b>,text;strokeColor=none,none,,
+0_f1,0,💰 deposit,text;strokeColor=none,none,,
+0_f2,0,withdraw,text;strokeColor=none,none,,
+0_f3,0,💰 createMatch,text;strokeColor=none,none,,
+0_mod3_0,-,isNewAPIMatch,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f3"
+0_mod3_1,-,onlyOwner,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f3"
+0_f4,0,💰 placeBet,text;strokeColor=none,none,,
+0_mod4_0,-,isCircuitBreakOff,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f4"
+0_mod4_1,-,matchExists,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f4"
+0_mod4_2,-,matchNotStarted,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f4"
+0_mod4_3,-,isBetAllowed,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f4"
+0_mod4_4,-,validateMatchResult,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f4"
+0_f5,0,startMatch,text;strokeColor=none,none,,
+0_mod5_0,-,onlyOwner,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f5"
+0_mod5_1,-,matchExists,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f5"
+0_mod5_2,-,matchNotStarted,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f5"
+0_f6,0,closeMatch,text;strokeColor=none,none,,
+0_mod6_0,-,onlyOwner,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f6"
+0_mod6_1,-,matchExists,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f6"
+0_mod6_2,-,matchStarted,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f6"
+0_mod6_3,-,validateMatchResult,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f6"
+0_f7,0,💰 liquidateAsset,text;strokeColor=none,none,,
+0_mod7_0,-,isCircuitBreakOff,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f7"
+0_mod7_1,-,validateToken,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f7"
+0_mod7_2,-,isTokenOwner,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f7"
+0_f8,0,toggleCircuitBreaker,text;strokeColor=none,none,,
+0_mod8_0,-,onlyOwner,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f8"
+0_f9,0,🔍 getMatch,text;strokeColor=none,none,,
+0_mod9_0,-,matchExists,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f9"
+0_f10,0,🔍 getSmartAsset,text;strokeColor=none,none,,
+0_mod10_0,-,validateToken,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f10"
+0_mod10_1,-,isTokenOwner,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f10"
+0_f11,0,🔍 isAdmin,text;strokeColor=none,none,,
+0_f12,0,changeOwner,text;strokeColor=none,none,,
+0_mod12_0,-,onlyOwner,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f12"
+0_f13,0,🔍 ownerOf,text;strokeColor=none,none,,
+0_f14,0,🔍 ownerMatchesBets,text;strokeColor=none,none,,
+0_f15,0,getData,text;strokeColor=none,none,,
+0_mod15_0,-,onlyOwner,mxgraph.bootstrap.rrect,#fff2cc,strokeColor=#d79b00;dashed=1;align=center;rSize=10;fontStyle=0;whiteSpace=wrap;dashPattern=1 1;strokeColor=#d6b656;fontSize=8;fontFamily=Helvetica,"0_f15"
+0_f16,0,💰 <b>__constr__<b>,text;strokeColor=none,none,,
+0_a0,-,owner,umlActor;strokeColor=#000000,none,verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=left,"0"
+0_a1,-,bettor,umlActor;strokeColor=#000000,none,verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=left,"0"
+0_a2,-,payToken,umlActor;strokeColor=#000000,none,verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=left,"0"
+0_a3,-,newOwner,umlActor;strokeColor=#000000,none,verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=left,"0"
