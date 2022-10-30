@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./MetaBetDomain.sol";
+import "hardhat/console.sol";
 
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/18c7efe800df6fc19554ece3b1f238e9e028a1db/contracts/token/ERC721/ERC721.sol";
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/18c7efe800df6fc19554ece3b1f238e9e028a1db/contracts/utils/Counters.sol";
@@ -73,6 +74,7 @@ contract MetaBet is MetaBetDomain {
     constructor(address _erc20Token) {
         owner = msg.sender;
         erc20Token = IERC20(_erc20Token);
+        console.log("deploy ..... contract meta bet...");
     }
 
     ////////////////////////////////////////
@@ -664,6 +666,9 @@ contract MetaBet is MetaBetDomain {
         uint8 scoreTeamB
     ) internal {
         matches[_matchId].result = _matchResult;
+        matches[_matchId].scoreTeamA = scoreTeamA;
+        matches[_matchId].scoreTeamB = scoreTeamB;
+
         emit MatchResultSetEvent(
             _matchId,
             matches[_matchId].result,
@@ -702,6 +707,7 @@ contract MetaBet is MetaBetDomain {
         isTokenOwner(_smartAssetId)
         returns (bool)
     {
+        console.log("<<<<<<<<<<<liquidateAsset=======: '%s' '", _smartAssetId);
         SmartAsset memory smartAsset = smartAssets[_smartAssetId];
         require(
             matches[smartAsset.matchId].state == MatchState.FINISHED,
@@ -711,21 +717,25 @@ contract MetaBet is MetaBetDomain {
         MatchResult matchResult = matches[smartAsset.matchId].result;
 
         uint256 lastWinValue = smartAsset.betInfo.payAmount;
+
+        console.log("liquidateAsset lastWinValue: '%s'", lastWinValue);
         // 提取赢得的押注资产
         if (matchResult == smartAsset.matchResult) {
             // 获取最终赔率
             uint256 lastBetOdds = matches[smartAsset.matchId].finalOdds;
             // 计算最终获取金额
-            lastWinValue = lastWinValue.mul(lastBetOdds).div(100);
+            lastWinValue = lastWinValue.mul(lastBetOdds).div(10000);
+             console.log("liquidateAsset lastBetOdds: '%s'", lastBetOdds);
         }
 
+        console.log("liquidateAsset lastWinValue1: '%s'", lastWinValue);
         // 手续费金额
         uint256 feesAmount = lastWinValue
             .mul(matches[smartAsset.matchId].matchInfo.winnerFeeRate)
-            .div(100);
+            .div(10000);
         // withdraw_到手提款金额
         uint256 withdrawAmount = lastWinValue.sub(feesAmount);
-
+        console.log("liquidateAsset feesAmount: '%s',withdrawAmount: '%s'", feesAmount,withdrawAmount);
         if (smartAsset.betInfo.assetType == AssetType.ETH) {
             require(
                 address(this).balance >= smartAsset.betInfo.payAmount,
@@ -741,6 +751,7 @@ contract MetaBet is MetaBetDomain {
             payable(matches[smartAsset.matchId].creator).transfer(feesAmount);
         }
         if (smartAsset.betInfo.assetType == AssetType.ERC20) {
+            console.log("liquidateAsset 111");
             require(
                 IERC20(smartAsset.betInfo.payToken).balanceOf(address(this)) >=
                     smartAsset.betInfo.payAmount,
@@ -754,6 +765,8 @@ contract MetaBet is MetaBetDomain {
                     address(this)
                 );
             }
+            
+            console.log("liquidateAsset Contract has Token: '%s'",IERC20(smartAsset.betInfo.payToken).balanceOf(address(this)));
             invalidateAsset(_smartAssetId);
             // 用户提款
             IERC20(smartAsset.betInfo.payToken).transfer(
@@ -766,14 +779,16 @@ contract MetaBet is MetaBetDomain {
                 feesAmount
             );
         }
+        
+            console.log("liquidateAsset 333");
         //totalCollected; 每取一笔更新对账结果
         matches[smartAsset.matchId].totalWithDraw = matches[smartAsset.matchId]
             .totalWithDraw
             .add(lastWinValue);
         // withdraw_到手提款金额
-        smartAsset.withdrawAmount = withdrawAmount;
+        smartAssets[_smartAssetId].withdrawAmount = withdrawAmount;
         // withdraw_timestamp提取时间
-        smartAsset.withdrawTimestamp = block.timestamp;
+        smartAssets[_smartAssetId].withdrawTimestamp = block.timestamp;
 
         emit AssetLiquidatedEvent(
             msg.sender,

@@ -29,11 +29,6 @@ async function deploySmartBet() {
  * 1. 部署合约
  */
 async function deployMetaBet() {
-  // const accounts = await hre.ethers.getSigners();
-  // let token = new ethers.Contract(tokenAddress, tokenAbi, accounts[0]);
-  // let tbalance = await token.balanceOf(accounts[0].address);
-  // console.log(accounts[0].address, " balance:", await accounts[0].getBalance());
-  // console.log(accounts[0].address, "token balance:", tbalance);
   const _MetaBet = await ethers.getContractFactory("MetaBet");
   let MetaBet = await _MetaBet.deploy(tokenAddress, {
     gasLimit: BigNumber.from("8000000"),
@@ -89,7 +84,7 @@ async function createMatch() {
   let token = new ethers.Contract(tokenAddress, tokenAbi, accounts[0]);
   let metabet = new ethers.Contract(metaBetAddress, metaBetAbi, accounts[0]);
 
-  let startAt = parseInt(new Date().getTime() / 1000) + 3600 * 10;
+  let startAt = parseInt(new Date().getTime() / 1000) + 3600;
 
   let initOddsTeamA = 10;
   let initOddsTeamB = 30;
@@ -104,24 +99,18 @@ async function createMatch() {
 
   // let _matchInfo = [1, 2, 5, startAt, 1, metatoken, 10, 20, 30];
   const _matchInfo = {
-    // teamA队名称
-    teamAName: 'USA',
-    // teamB队名称
-    teamBName: 'agentina',
-    // 赢家手续费率 8% winnerfeerate (让玩家自己设置)
-    winnerFeeRate: 800,
-    // 比赛开始时间
+    oddsTeamA: oddsA,
+    oddsTeamB: oddsB,
+    oddsDraw: oddsDraw,
     startAt,
-    // 押注资产类型
     assetType: 1,
-    // USDC和USDT不写这里，写在公共变量里面，新增发的币可以写在这里
     payToken: token.address,
     initOddsTeamA: toWei(initOddsTeamA),
     initOddsTeamB: toWei(initOddsTeamB),
     initOddsDraw: toWei(initOddsDraw),
   };
 
-  let _apiMatchId = 1002;
+  let _apiMatchId = 1001;
   let _matchResultLink = "https://api-football-v1.p.rapidapi.com/v2/";
   // function createMatch(
   //     uint256 _apiMatchId,
@@ -153,7 +142,7 @@ async function createMatch() {
 /**
  * 3. 押注世界杯比赛
  */
-async function placeBet(type, _matchId) {
+async function placeBet(type) {
   const accounts = await hre.ethers.getSigners();
 
   let indexAccount = type;
@@ -168,8 +157,12 @@ async function placeBet(type, _matchId) {
     accounts[indexAccount]
   );
 
+  let initOdds = 0;
+  let initOddsTeamA = 100;
+  let initOddsTeamB = 200;
+  let initOddsDraw = 300;
 
-  // let _matchId = 1;
+  let _matchId = 1;
   /**
     enum MatchResult {
         NOT_DETERMINED,
@@ -183,15 +176,14 @@ async function placeBet(type, _matchId) {
   let TEAM_A_WON_resultBetOn = 2;
   let TEAM_B_WON_resultBetOn = 3;
 
-  let initOdds = 0;
   if (type == 1) {
-    initOdds = 100;
+    initOdds = initOddsDraw;
     resultBetOn = DRAW_resultBetOn;
   } else if (type == 2) {
-    initOdds = 200;
+    initOdds = initOddsTeamA;
     resultBetOn = TEAM_A_WON_resultBetOn;
   } else if (type == 3) {
-    initOdds = 300;
+    initOdds = initOddsTeamB;
     resultBetOn = TEAM_B_WON_resultBetOn;
   }
 
@@ -207,7 +199,7 @@ async function placeBet(type, _matchId) {
   let payAsset = {
     assetType: 1,
     payToken: token.address,
-    payAmount: totalOdds,
+    payValue: totalOdds,
   };
   //   function placeBet(
   //     uint256 _matchId,
@@ -237,11 +229,11 @@ async function placeBet(type, _matchId) {
 /**
  * 4. 开始-世界杯比赛
  */
-async function startMatch(_matchId) {
+async function startMatch() {
   const accounts = await hre.ethers.getSigners();
   let metabet = new ethers.Contract(metaBetAddress, metaBetAbi, accounts[0]);
 
-  // let _matchId = 1;
+  let _matchId = 1;
 
   // function startMatch(uint256 _matchId)
   // public
@@ -260,11 +252,11 @@ async function startMatch(_matchId) {
 /**
  * 5. 结束-世界杯比赛
  */
-async function closeMatch(_matchId) {
+async function closeMatch() {
   const accounts = await hre.ethers.getSigners();
   let metabet = new ethers.Contract(metaBetAddress, metaBetAbi, accounts[0]);
 
-  // let _matchId = 1;
+  let _matchId = 1;
 
   /**
     enum MatchResult {
@@ -279,21 +271,14 @@ async function closeMatch(_matchId) {
   let TEAM_A_WON_resultBetOn = 2;
   let TEAM_B_WON_resultBetOn = 3;
 
-  let scoreTeamA = 2
-  let scoreTeamB = 1
-  //   function closeMatch(
-  //   uint256 _matchId,
-  //   uint8 _matchResult,
-  //   uint8 scoreTeamA,
-  //   uint8 scoreTeamB
-  // )
+  //   function closeMatch(uint256 _matchId, uint8 _matchResult)
   //   public
   //   onlyOwner
   //   matchExists(_matchId)
   //   matchStarted(_matchId)
   //   validateMatchResult(_matchResult)
 
-  let metabetret = await metabet.closeMatch(_matchId, TEAM_A_WON_resultBetOn, scoreTeamA, scoreTeamB, {
+  let metabetret = await metabet.closeMatch(_matchId, TEAM_A_WON_resultBetOn, {
     gasLimit: BigNumber.from("8000000"),
   });
   console.log(metabetret, "metabetret");
@@ -319,7 +304,7 @@ async function getMatch() {
   console.log("Match Info:", ret);
 }
 
-async function liquidateAsset(type, assetId) {
+async function liquidateAsset(type) {
   const accounts = await hre.ethers.getSigners();
 
   let indexAccount = type;
@@ -337,8 +322,7 @@ async function liquidateAsset(type, assetId) {
   let tbalance = await token.balanceOf(accounts[indexAccount].address);
   console.log(accounts[indexAccount].address, "token balance:", tbalance);
 
-  // type=1:4,type=2:5,type=3:6
-  let metabetret = await metabet.liquidateAsset(assetId, {
+  let metabetret = await metabet.liquidateAsset(5, {
     gasLimit: BigNumber.from("8000000"),
   });
   console.log(metabetret, "metabetret");
@@ -377,9 +361,8 @@ async function delay(sec) {
   });
 }
 //matic
-let _matchId = 2;
 var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
-var metaBetAddress = "0xfb186a02eb85a1addee312ea8450284739357d14"; //
+var metaBetAddress = "0x9C09dcFf29b885A9125349EA0a96DEf59baa08F2"; //
 // 1.部署合约
 // deployMetaBet()
 // 1-1 蓝钻充值
@@ -388,20 +371,19 @@ var metaBetAddress = "0xfb186a02eb85a1addee312ea8450284739357d14"; //
 // 2.创建世界杯押注项目
 // createMatch()
 // 3.押注世界杯项目
+// placeBet(1)
+// placeBet(2)
+// placeBet(3)
 
-// placeBet(1,_matchId) // draw 100
-// placeBet(2,_matchId) // teamA 200
-// placeBet(3,_matchId) // teamB 300
-
-// startMatch(_matchId)
-closeMatch(_matchId)
-// 9.查询余额
-// view()
-// 10.获取赛程押注信息
-// getMatch()
-// 提取押注金额
-// type=1:4,type=2:5,type=3:6
-// liquidateAsset(2,8)
+// startMatch()
+// closeMatch()
+  // 9.查询余额
+  // view()
+  // 10.获取赛程押注信息
+  // getMatch()
+  // 提取押注金额
+  // type=1:4,type=2:5,type=3:6
+  liquidateAsset(1)
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);

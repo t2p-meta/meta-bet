@@ -18,7 +18,7 @@ task("accounts", "Prints the list of accounts", async () => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-	defaultNetwork: 'poligy_testnet',
+	defaultNetwork: 'hardhat',
 	networks: {
 		hardhat: {
 
@@ -73,18 +73,18 @@ module.exports = {
 	// 		]
 	// 	},
 	// 	// 币安
-		bsc_testnet: {
-			url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
-			chainId: 97,
-      gasPrice: 20000000000,
-			from: process.env.ETH_ADDRESS_0,
-			accounts: [
-				process.env.ETH_PK_0,
-				process.env.ETH_PK_1,
-				process.env.ETH_PK_2
-			],
-      timeout:60000
-		},
+	// 	bsc_testnet: {
+	// 		url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+	// 		chainId: 97,
+    //   gasPrice: 20000000000,
+	// 		from: process.env.ETH_ADDRESS_0,
+	// 		accounts: [
+	// 			process.env.ETH_PK_0,
+	// 			process.env.ETH_PK_1,
+	// 			process.env.ETH_PK_2
+	// 		],
+    //   timeout:60000
+	// 	},
 	// 	// 币安-主网
 	// 	bsc_mainnet: {
 	// 		url: 'https://bsc-dataseed2.binance.org/',
@@ -133,16 +133,16 @@ module.exports = {
 			]
 		},
 		// Aurora Network
-		aurora_testnet: {
-			url: 'https://testnet.aurora.dev/',
-			chainId: 1313161555,
-			from: process.env.ETH_ADDRESS_0,
-			accounts: [
-				process.env.DEDROPS_PK,
-				process.env.ETH_PK_1,
-				process.env.ETH_PK_2
-			]
-		}
+		// aurora_testnet: {
+		// 	url: 'https://testnet.aurora.dev/',
+		// 	chainId: 1313161555,
+		// 	from: process.env.ETH_ADDRESS_0,
+		// 	accounts: [
+		// 		process.env.DEDROPS_PK,
+		// 		process.env.ETH_PK_1,
+		// 		process.env.ETH_PK_2
+		// 	]
+		// }
 	},
 	solidity: {
 		version: "0.8.12",
