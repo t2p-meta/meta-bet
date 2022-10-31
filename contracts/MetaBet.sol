@@ -571,8 +571,7 @@ contract MetaBet is MetaBetDomain {
                     totalPayoutDraw,
                     totalPayoutTeamB,
                     totalPayoutTeamA
-                ) +
-                100;
+                );
         } else if (matches[_matchId].result == MatchResult.TEAM_B_WON) {
             // TeamB最终赔率
             matches[_matchId].finalOdds =
@@ -580,8 +579,7 @@ contract MetaBet is MetaBetDomain {
                     totalPayoutDraw,
                     totalPayoutTeamA,
                     totalPayoutTeamB
-                ) +
-                100;
+                );
         } else {
             // TeamA和TeamB平局最终赔率
             matches[_matchId].finalOdds =
@@ -589,8 +587,7 @@ contract MetaBet is MetaBetDomain {
                     totalPayoutTeamB,
                     totalPayoutTeamA,
                     totalPayoutDraw
-                ) +
-                100;
+                );
         }
     }
 
@@ -598,8 +595,8 @@ contract MetaBet is MetaBetDomain {
         uint256 _oddsWin,
         uint256 _oddsFailOne,
         uint256 _oddsFailTwo
-    ) internal pure returns (uint32) {
-        return uint32(_oddsWin.add(_oddsFailOne).mul(100).div(_oddsFailTwo));
+    ) internal pure returns (uint256) {
+        return _oddsWin.add(_oddsFailOne).mul(100000000000000000).div(_oddsFailTwo).add(100000000000000000);
     }
 
     /*
@@ -614,8 +611,6 @@ contract MetaBet is MetaBetDomain {
         matchNotStarted(_matchId)
     {
         matches[_matchId].state = MatchState.STARTED;
-        // 计算最终的 A,平,B 的赔率
-        calculateOdds(_matchId);
     }
 
     /*
@@ -668,6 +663,8 @@ contract MetaBet is MetaBetDomain {
         matches[_matchId].result = _matchResult;
         matches[_matchId].scoreTeamA = scoreTeamA;
         matches[_matchId].scoreTeamB = scoreTeamB;
+        // 计算最终的 A,B,平 的赔率
+        calculateOdds(_matchId);
 
         emit MatchResultSetEvent(
             _matchId,
@@ -707,7 +704,7 @@ contract MetaBet is MetaBetDomain {
         isTokenOwner(_smartAssetId)
         returns (bool)
     {
-        console.log("<<<<<<<<<<<liquidateAsset=======: '%s' '", _smartAssetId);
+        console.log("<<<<<<<<<<<liquidateAsset=======: '%s'", _smartAssetId);
         SmartAsset memory smartAsset = smartAssets[_smartAssetId];
         require(
             matches[smartAsset.matchId].state == MatchState.FINISHED,
@@ -717,32 +714,44 @@ contract MetaBet is MetaBetDomain {
         MatchResult matchResult = matches[smartAsset.matchId].result;
 
         uint256 lastWinValue = smartAsset.betInfo.payAmount;
-
+        console.log(
+            "Match totalPayoutTeamA: '%s' totalPayoutTeamB: '%s' totalPayoutDraw: '%s'",
+            matches[smartAsset.matchId].totalPayoutTeamA,
+            matches[smartAsset.matchId].totalPayoutTeamB,
+            matches[smartAsset.matchId].totalPayoutDraw
+        );
         console.log("liquidateAsset lastWinValue: '%s'", lastWinValue);
         // 提取赢得的押注资产
         if (matchResult == smartAsset.matchResult) {
             // 获取最终赔率
             uint256 lastBetOdds = matches[smartAsset.matchId].finalOdds;
+            console.log("liquidateAsset lastBetOdds: '%s'", lastBetOdds);
             // 计算最终获取金额
-            lastWinValue = lastWinValue.mul(lastBetOdds).div(10000);
-             console.log("liquidateAsset lastBetOdds: '%s'", lastBetOdds);
+            lastWinValue = lastWinValue.mul(lastBetOdds).div(100000000000000000);
         }
 
         console.log("liquidateAsset lastWinValue1: '%s'", lastWinValue);
         // 手续费金额
         uint256 feesAmount = lastWinValue
             .mul(matches[smartAsset.matchId].matchInfo.winnerFeeRate)
-            .div(10000);
+            .div(100);
         // withdraw_到手提款金额
         uint256 withdrawAmount = lastWinValue.sub(feesAmount);
-        console.log("liquidateAsset feesAmount: '%s',withdrawAmount: '%s'", feesAmount,withdrawAmount);
+        // 判断是否存在小于0.01的尾数
+
+        console.log(
+            "liquidateAsset feesAmount: '%s',withdrawAmount: '%s'",
+            feesAmount,
+            withdrawAmount
+        );
         if (smartAsset.betInfo.assetType == AssetType.ETH) {
+            uint256 smartBalance = address(this).balance;
             require(
-                address(this).balance >= smartAsset.betInfo.payAmount,
+                smartBalance >= smartAsset.betInfo.payAmount,
                 "Contract has insufficient funds"
             );
-            if (address(this).balance < lastWinValue) {
-                lastWinValue = address(this).balance;
+            if (smartBalance < lastWinValue) {
+                lastWinValue = smartBalance;
             }
             invalidateAsset(_smartAssetId);
             // 用户提款
@@ -751,22 +760,21 @@ contract MetaBet is MetaBetDomain {
             payable(matches[smartAsset.matchId].creator).transfer(feesAmount);
         }
         if (smartAsset.betInfo.assetType == AssetType.ERC20) {
+            uint256 smartBalance = IERC20(smartAsset.betInfo.payToken)
+                .balanceOf(address(this));
             console.log("liquidateAsset 111");
             require(
-                IERC20(smartAsset.betInfo.payToken).balanceOf(address(this)) >=
-                    smartAsset.betInfo.payAmount,
+                smartBalance >= smartAsset.betInfo.payAmount,
                 "Contract has Token insufficient funds"
             );
-            if (
-                IERC20(smartAsset.betInfo.payToken).balanceOf(address(this)) <
-                lastWinValue
-            ) {
-                lastWinValue = IERC20(smartAsset.betInfo.payToken).balanceOf(
-                    address(this)
-                );
+            if (smartBalance < lastWinValue) {
+                lastWinValue = smartBalance;
             }
-            
-            console.log("liquidateAsset Contract has Token: '%s'",IERC20(smartAsset.betInfo.payToken).balanceOf(address(this)));
+
+            console.log(
+                "liquidateAsset Contract has Token: '%s'",
+                IERC20(smartAsset.betInfo.payToken).balanceOf(address(this))
+            );
             invalidateAsset(_smartAssetId);
             // 用户提款
             IERC20(smartAsset.betInfo.payToken).transfer(
@@ -779,8 +787,8 @@ contract MetaBet is MetaBetDomain {
                 feesAmount
             );
         }
-        
-            console.log("liquidateAsset 333");
+
+        console.log("liquidateAsset 333");
         //totalCollected; 每取一笔更新对账结果
         matches[smartAsset.matchId].totalWithDraw = matches[smartAsset.matchId]
             .totalWithDraw

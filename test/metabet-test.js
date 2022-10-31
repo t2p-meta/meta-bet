@@ -27,7 +27,6 @@ describe("Metabet-test===>>>>", function () {
   });
 
   it("Deployment should assign the total supply of tokens to the owner", async function () {
-
     const Token = await ethers.getContractFactory("SimpleToken");
 
     metatoken = await Token.deploy("Meta", "Meta", 1, toWei(100000000));
@@ -39,10 +38,10 @@ describe("Metabet-test===>>>>", function () {
 
   it("Should transfer tokens between accounts", async function () {
     const [owner, addr1, addr2, addr3] = accounts;
-    console.log(owner.address)
-    console.log(addr1.address)
-    console.log(addr2.address)
-    console.log(addr3.address)
+    console.log(owner.address);
+    console.log(addr1.address);
+    console.log(addr2.address);
+    console.log(addr3.address);
     // const Token = await ethers.getContractFactory("SimpleToken");
 
     // const hardhatToken = await Token.deploy("HEHE", "HH", 1, 100000000);
@@ -76,10 +75,9 @@ describe("Metabet-test===>>>>", function () {
     console.log("Deployment metabet:............:", metabet.address);
   });
   /**
-  * 2. 创建世界杯比赛
-  */
+   * 2. 创建世界杯比赛
+   */
   it("createMatch", async function () {
-
     let token = metatoken;
 
     let startAt = parseInt(new Date().getTime() / 1000) + 3600 * 10;
@@ -98,11 +96,11 @@ describe("Metabet-test===>>>>", function () {
     // let _matchInfo = [1, 2, 5, startAt, 1, metatoken, 10, 20, 30];
     const _matchInfo = {
       // teamA队名称
-      teamAName: 'USA',
+      teamAName: "USA",
       // teamB队名称
-      teamBName: 'agentina',
+      teamBName: "agentina",
       // 赢家手续费率 8% winnerfeerate (让玩家自己设置)
-      winnerFeeRate: 800,
+      winnerFeeRate: 0.08 * 100,
       // 比赛开始时间
       startAt,
       // 押注资产类型
@@ -143,24 +141,13 @@ describe("Metabet-test===>>>>", function () {
     console.log("createMatch deposit done");
   });
 
-
   /**
    * 3.-1 押注世界杯比赛
    */
   it("placeBet draw", async function () {
-    await placeBet(1, _matchId) //1 draw 100
-  });
-    /**
-   * 3.-2 押注世界杯比赛
-   */
-     it("placeBet teamA", async function () {
-      await placeBet(2, _matchId) //2 teamA 200 // 
-    });
-      /**
-   * 3.-3 押注世界杯比赛
-   */
-  it("placeBet teamB", async function () {
-    await placeBet(3, _matchId) //3 teamB 300
+    await placeBet(1, _matchId); //1 draw 100
+    await placeBet(2, _matchId); //2 teamA 200 //
+    await placeBet(3, _matchId); //3 teamB 300
   });
 
   /**
@@ -208,8 +195,8 @@ describe("Metabet-test===>>>>", function () {
     let TEAM_A_WON_resultBetOn = 2;
     let TEAM_B_WON_resultBetOn = 3;
 
-    let scoreTeamA = 2
-    let scoreTeamB = 1
+    let scoreTeamA = 2;
+    let scoreTeamB = 1;
     //   function closeMatch(
     //   uint256 _matchId,
     //   uint8 _matchResult,
@@ -222,19 +209,25 @@ describe("Metabet-test===>>>>", function () {
     //   matchStarted(_matchId)
     //   validateMatchResult(_matchResult)
 
-    let metabetret = await metabet.closeMatch(_matchId, TEAM_A_WON_resultBetOn, scoreTeamA, scoreTeamB, {
-      gasLimit: BigNumber.from("8000000"),
-    });
+    let metabetret = await metabet.closeMatch(
+      _matchId,
+      TEAM_A_WON_resultBetOn,
+      scoreTeamA,
+      scoreTeamB,
+      {
+        gasLimit: BigNumber.from("8000000"),
+      }
+    );
     console.log(metabetret, "closeMatch metabetret");
 
     console.log("closeMatch deposit done");
   });
 
-  it("liquidateAsset", async function () {
+  it("user liquidateAsset", async function () {
     // const accounts = await hre.ethers.getSigners();
 
     let indexAccount = 2;
-    let assetId = 5;//type=2:5
+    let assetId = 5; //type=2:5
 
     let token = metatoken;
     // let token = new ethers.Contract(
@@ -248,19 +241,99 @@ describe("Metabet-test===>>>>", function () {
     //   accounts[indexAccount]
     // );
 
-    let tbalance = await token.balanceOf(accounts[indexAccount].address);
-    console.log(accounts[indexAccount].address, "liquidateAsset token balance:", tbalance);
-
+    let userBalance1 = await token.balanceOf(accounts[indexAccount].address);
+    let creatorBalance1 = await token.balanceOf(accounts[0].address);
+    let smartBalance1 = await token.balanceOf(metabet.address);
     // type=1:4,type=2:5,type=3:6
     //type 1 draw  100
     //type 2 teamA 200 win
     //type 3 teamB 300
-    let metabetret = await metabet.connect(accounts[indexAccount]).liquidateAsset(assetId, {
-      gasLimit: BigNumber.from("8000000"),
-    });
+    let metabetret = await metabet
+      .connect(accounts[indexAccount])
+      .liquidateAsset(assetId, {
+        gasLimit: BigNumber.from("8000000"),
+      });
     console.log(metabetret, "metabetret");
 
-    console.log("deposit done");
+    let userBalance2 = await token.balanceOf(accounts[indexAccount].address);
+    console.log(
+      "user [",
+      accounts[indexAccount].address,
+      "] liquidateAsset token userBalance1:",
+      userBalance1,
+      ",userBalance2:",
+      userBalance2
+    );
+    let creatorBalance2 = await token.balanceOf(accounts[0].address);
+    console.log(
+      "creator [",
+      accounts[0].address,
+      "] liquidateAsset token creatorBalance1:",
+      creatorBalance1,
+      ",creatorBalance2:",
+      creatorBalance2
+    );
+    let smartBalance2 = await token.balanceOf(metabet.address);
+    console.log(
+      " smart [",
+      metabet.address,
+      "] liquidateAsset token smartBalance1:",
+      smartBalance1,
+      ",smartBalance2:",
+      smartBalance2
+    );
+  });
+
+  it("creator liquidateAsset", async function () {
+    // const accounts = await hre.ethers.getSigners();
+
+    let indexAccount = 0;
+    // 
+    let assetId = 1; 
+
+    let token = metatoken;
+    // let token = new ethers.Contract(
+    //   tokenAddress,
+    //   tokenAbi,
+    //   accounts[indexAccount]
+    // );
+    // let metabet = new ethers.Contract(
+    //   metaBetAddress,
+    //   metaBetAbi,
+    //   accounts[indexAccount]
+    // );
+
+    let creatorBalance1 = await token.balanceOf(accounts[indexAccount].address);
+    let smartBalance1 = await token.balanceOf(metabet.address);
+    // type=1:4,type=2:5,type=3:6
+    //type 1 draw  100
+    //type 2 teamA 200 win
+    //type 3 teamB 300
+    let metabetret = await metabet
+      .connect(accounts[indexAccount])
+      .liquidateAsset(assetId, {
+        gasLimit: BigNumber.from("8000000"),
+      });
+    console.log(metabetret, "metabetret");
+
+    let creatorBalance2 = await token.balanceOf(accounts[indexAccount].address);
+    console.log(
+      "creator [",
+      accounts[indexAccount].address,
+      "] liquidateAsset token creatorBalance1:",
+      creatorBalance1,
+      ",creatorBalance2:",
+      creatorBalance2
+    );
+    let smartBalance2 = await token.balanceOf(metabet.address);
+    console.log(
+      " smart [",
+      metabet.address,
+      "] liquidateAsset token smartBalance1:",
+      smartBalance1,
+      ",smartBalance2:",
+      smartBalance2
+    );
   });
 
   async function placeBet(type) {
@@ -276,7 +349,6 @@ describe("Metabet-test===>>>>", function () {
     //   metaBetAbi,
     //   accounts[indexAccount]
     // );
-
 
     // let _matchId = 1;
     /**
@@ -328,16 +400,20 @@ describe("Metabet-test===>>>>", function () {
 
     let tbalance = await token.balanceOf(accounts[indexAccount].address);
     console.log(accounts[indexAccount].address, "token balance:", tbalance);
-    await token.connect(accounts[indexAccount]).approve(metabet.address, totalOdds, {
-      gasLimit: b("8000000"),
-    });
+    await token
+      .connect(accounts[indexAccount])
+      .approve(metabet.address, totalOdds, {
+        gasLimit: b("8000000"),
+      });
     console.log(token.address, "approve done:", totalOdds);
 
     console.log("placeBet:", _matchId, resultBetOn, payAsset);
-    let metabetret = await metabet.connect(accounts[indexAccount]).placeBet(_matchId, resultBetOn, payAsset, {
-      value: amount,
-      gasLimit: BigNumber.from("8000000"),
-    });
+    let metabetret = await metabet
+      .connect(accounts[indexAccount])
+      .placeBet(_matchId, resultBetOn, payAsset, {
+        value: amount,
+        gasLimit: BigNumber.from("8000000"),
+      });
     console.log(metabetret, "placeBet metabetret");
 
     console.log("placeBet deposit done");
