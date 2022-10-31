@@ -566,28 +566,25 @@ contract MetaBet is MetaBetDomain {
 
         if (matches[_matchId].result == MatchResult.TEAM_A_WON) {
             // TeamA最终赔率
-            matches[_matchId].finalOdds =
-                calculateAssetOdds(
-                    totalPayoutDraw,
-                    totalPayoutTeamB,
-                    totalPayoutTeamA
-                );
+            matches[_matchId].finalOdds = calculateAssetOdds(
+                totalPayoutDraw,
+                totalPayoutTeamB,
+                totalPayoutTeamA
+            );
         } else if (matches[_matchId].result == MatchResult.TEAM_B_WON) {
             // TeamB最终赔率
-            matches[_matchId].finalOdds =
-                calculateAssetOdds(
-                    totalPayoutDraw,
-                    totalPayoutTeamA,
-                    totalPayoutTeamB
-                );
+            matches[_matchId].finalOdds = calculateAssetOdds(
+                totalPayoutDraw,
+                totalPayoutTeamA,
+                totalPayoutTeamB
+            );
         } else {
             // TeamA和TeamB平局最终赔率
-            matches[_matchId].finalOdds =
-                calculateAssetOdds(
-                    totalPayoutTeamB,
-                    totalPayoutTeamA,
-                    totalPayoutDraw
-                );
+            matches[_matchId].finalOdds = calculateAssetOdds(
+                totalPayoutTeamB,
+                totalPayoutTeamA,
+                totalPayoutDraw
+            );
         }
     }
 
@@ -596,7 +593,12 @@ contract MetaBet is MetaBetDomain {
         uint256 _oddsFailOne,
         uint256 _oddsFailTwo
     ) internal pure returns (uint256) {
-        return _oddsWin.add(_oddsFailOne).mul(100000000000000000).div(_oddsFailTwo).add(100000000000000000);
+        return
+            _oddsWin
+                .add(_oddsFailOne)
+                .mul(100000000000000000)
+                .div(_oddsFailTwo)
+                .add(100000000000000000);
     }
 
     /*
@@ -727,7 +729,9 @@ contract MetaBet is MetaBetDomain {
             uint256 lastBetOdds = matches[smartAsset.matchId].finalOdds;
             console.log("liquidateAsset lastBetOdds: '%s'", lastBetOdds);
             // 计算最终获取金额
-            lastWinValue = lastWinValue.mul(lastBetOdds).div(100000000000000000);
+            lastWinValue = lastWinValue.mul(lastBetOdds).div(
+                100000000000000000
+            );
         }
 
         console.log("liquidateAsset lastWinValue1: '%s'", lastWinValue);
@@ -885,6 +889,10 @@ contract MetaBet is MetaBetDomain {
      */
     function ownerMatchesBets() public view virtual returns (uint256[] memory) {
         return matchesBetted[msg.sender];
+    }
+
+    function getEthBalance() public view virtual returns (uint256) {
+        return address(this).balance;
     }
 
     /* Allow owner to get the data of stored games */
