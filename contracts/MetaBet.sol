@@ -42,6 +42,9 @@ contract MetaBet is MetaBetDomain {
     // flag to determine if contracts core functionalities can be performed
     bool circuitBreaker = false;
 
+    // 冲入工具判断
+    bool retryAttch = false;
+
     // holds all NFTs issued to winners
     mapping(uint256 => SmartAsset) smartAssets; // 押注表
 
@@ -758,10 +761,13 @@ contract MetaBet is MetaBetDomain {
                 lastWinValue = smartBalance;
             }
             invalidateAsset(_smartAssetId);
+            require(!retryAttch, "this contract attack !!");
+            retryAttch = true;
             // 用户提款
             payable(msg.sender).transfer(withdrawAmount);
             // 给比赛发起者转账佣金
             payable(matches[smartAsset.matchId].creator).transfer(feesAmount);
+            retryAttch = false;
         }
         if (smartAsset.betInfo.assetType == AssetType.ERC20) {
             uint256 smartBalance = IERC20(smartAsset.betInfo.payToken)
