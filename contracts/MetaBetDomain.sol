@@ -70,7 +70,6 @@ contract MetaBetDomain {
         AssetType assetType;
         // USDC和USDT不写这里，写在公共变量里面，新增发的币可以写在这里
         address payToken;
-        
         uint256 initOddsTeamA;
         uint256 initOddsTeamB;
         uint256 initOddsDraw;
@@ -125,4 +124,5 @@ contract MetaBetDomain {
         // 实时押注时间节点累计总金额：O
         uint256 totalPayoutDraw;
     }
+
 }

@@ -22,6 +22,9 @@ contract MetaBet is MetaBetDomain {
     using SafeMath for uint256;
     uint256 private constant MAX_DEPOSIT = 999999;
 
+    // 押注者数量，如果押注用户为0或者所有用户都已经提取完资产，管理者可以提取剩余的资产余额
+    uint256 private assetCount = 0;
+
     ////////////////////////////////////////
     //                                    //
     //         STATE VARIABLES            //
@@ -38,12 +41,19 @@ contract MetaBet is MetaBetDomain {
 
     // 支持充值token
     IERC20 public erc20Token;
+    // 币种记录表
+    mapping(address => bool) supportTokens;
+    // 币种列表
+    address[] private tokens;
+
+    // 比赛创建者角色信息
+    mapping(address => bool) private _signers;
 
     // flag to determine if contracts core functionalities can be performed
     bool circuitBreaker = false;
 
-    // 冲入工具判断
-    bool retryAttch = false;
+    // 重入工具判断
+    bool retryAttach = false;
 
     // holds all NFTs issued to winners
     mapping(uint256 => SmartAsset) smartAssets; // 押注表
@@ -52,7 +62,8 @@ contract MetaBet is MetaBetDomain {
     mapping(uint256 => Match) matches; // 赛程表
 
     // holds all apiMatchId -> onChainMatchId to prevent duplicate entries
-    mapping(uint256 => uint256) apiMatches; // 同一个赛程Id可能从不同的网站获取赔率
+    // 同一个赛程Id可能从不同的网站获取赔率
+    mapping(uint256 => uint256) apiMatches;
 
     // holds all bets on a match
     // mapping(matchId => mapping(gameResult => smartAssetId[])) matchBets;
@@ -77,6 +88,7 @@ contract MetaBet is MetaBetDomain {
     constructor(address _erc20Token) {
         owner = msg.sender;
         erc20Token = IERC20(_erc20Token);
+        addToken(_erc20Token);
         console.log("deploy ..... contract meta bet...");
     }
 
@@ -149,6 +161,13 @@ contract MetaBet is MetaBetDomain {
         _;
     }
 
+    modifier onlySigner() {
+        require(
+            isSigner(msg.sender),
+            "SignerRole: caller does not have the Signer role"
+        );
+        _;
+    }
     /*
      *  @notice  Ensure match does not previously exist
      */
@@ -288,7 +307,7 @@ contract MetaBet is MetaBetDomain {
         uint256 _apiMatchId,
         string calldata _matchResultLink,
         MatchInfo calldata _matchInfo
-    ) public payable isNewAPIMatch(_apiMatchId) onlyOwner returns (uint256) {
+    ) public payable isNewAPIMatch(_apiMatchId) returns (uint256) {
         uint256 amountBet = msg.value;
         require(
             _matchInfo.initOddsTeamA > 0 &&
@@ -311,6 +330,7 @@ contract MetaBet is MetaBetDomain {
                 amountBet
             );
         }
+        addSigner(msg.sender);
         matchIds.increment();
         uint256 matchId = matchIds.current();
         RealTimeAmount memory realTimeAmount = RealTimeAmount(
@@ -367,6 +387,7 @@ contract MetaBet is MetaBetDomain {
             MatchResult.NOT_DETERMINED, // 比赛结果
             MatchState.NOT_STARTED // 押注赛程状态
         );
+        addToken(_matchInfo.payToken);
         emitMatchCreatedEvent(matchId, _apiMatchId, _matchInfo);
         return matchId;
     }
@@ -424,7 +445,11 @@ contract MetaBet is MetaBetDomain {
         ) {
             return 0;
         }
-
+        // 判断是否为本次押注项目支持币种
+        require(
+            matches[_matchId].matchInfo.payToken == _payAsset.payToken,
+            "Current match does not support betting in this currency"
+        );
         if (matches[_matchId].matchInfo.startAt < block.timestamp) {
             matches[_matchId].state = MatchState.STARTED;
             return 0;
@@ -435,6 +460,7 @@ contract MetaBet is MetaBetDomain {
         }
         if (_payAsset.assetType == AssetType.ERC20) {
             amountBet = _payAsset.payAmount;
+            require(amountBet != 0, "Invalid amount bet");
             IERC20(_payAsset.payToken).transferFrom(
                 msg.sender,
                 address(this),
@@ -542,7 +568,7 @@ contract MetaBet is MetaBetDomain {
             0, // withdraw_到手提款金额
             0 // withdraw_timestamp提取时间
         );
-
+        assetCount = assetCount + 1;
         emit SmartAssetAwardedEvent(
             bettor,
             matchId,
@@ -606,7 +632,7 @@ contract MetaBet is MetaBetDomain {
 
     /*
      *  @notice  Match manual start by admin.
-     *  @param
+     *  @param 以比赛下半场算启动
      *  @return
      */
     function startMatch(uint256 _matchId)
@@ -692,6 +718,7 @@ contract MetaBet is MetaBetDomain {
     }
 
     function _burn(uint256 _smartAssetId) internal virtual {
+        assetCount = assetCount - 1;
         delete _owners[_smartAssetId];
     }
 
@@ -747,9 +774,10 @@ contract MetaBet is MetaBetDomain {
         // 判断是否存在小于0.01的尾数
 
         console.log(
-            "liquidateAsset feesAmount: '%s',withdrawAmount: '%s'",
+            "liquidateAsset feesAmount: '%s',withdrawAmount: '%s', winnerFeeRate: '%s'",
             feesAmount,
-            withdrawAmount
+            withdrawAmount,
+            matches[smartAsset.matchId].matchInfo.winnerFeeRate
         );
         if (smartAsset.betInfo.assetType == AssetType.ETH) {
             uint256 smartBalance = address(this).balance;
@@ -761,13 +789,18 @@ contract MetaBet is MetaBetDomain {
                 lastWinValue = smartBalance;
             }
             invalidateAsset(_smartAssetId);
-            require(!retryAttch, "this contract attack !!");
-            retryAttch = true;
+            require(!retryAttach, "this contract attack !!");
+            retryAttach = true;
             // 用户提款
+            console.log(
+                "liquidateAsset feesAmount eth: '%s',withdrawAmount: '%s'",
+                feesAmount,
+                withdrawAmount
+            );
             payable(msg.sender).transfer(withdrawAmount);
             // 给比赛发起者转账佣金
             payable(matches[smartAsset.matchId].creator).transfer(feesAmount);
-            retryAttch = false;
+            retryAttach = false;
         }
         if (smartAsset.betInfo.assetType == AssetType.ERC20) {
             uint256 smartBalance = IERC20(smartAsset.betInfo.payToken)
@@ -899,6 +932,76 @@ contract MetaBet is MetaBetDomain {
 
     function getEthBalance() public view virtual returns (uint256) {
         return address(this).balance;
+    }
+
+    /**
+     * Allow withdraw of tokens from the contract
+     */
+    function withdrawToken() public onlyOwner {
+        require(assetCount == 0, "User has not withdrawn assets");
+        for (uint8 i = 0; i < tokens.length; i++) {
+            uint256 balance = IERC20(tokens[i]).balanceOf(address(this));
+            if (balance > 0) {
+                IERC20(tokens[i]).transfer(msg.sender, balance);
+                console.log(
+                    "owner['%s'] withdrawToken: '%s',balance: '%s'",
+                    msg.sender,
+                    tokens[i],
+                    balance
+                );
+            }
+        }
+        uint256 smartBalance = address(this).balance;
+        if (smartBalance > 0) {
+            require(!retryAttach, "this contract attack !!");
+            retryAttach = true;
+            payable(msg.sender).transfer(smartBalance);
+            retryAttach = false;
+            console.log(
+                "owner['%s'] withdrawToken eth balance: '%s'",
+                msg.sender,
+                smartBalance
+            );
+        }
+    }
+
+    /**
+    添加新币种
+     */
+    function addToken(address token) internal {
+        if (token != address(0) && supportTokens[token] != true) {
+            supportTokens[token] = true;
+            tokens.push(token);
+        }
+    }
+
+    function isSigner(address account) public view returns (bool) {
+        return has(account);
+    }
+
+    /**
+     * @dev Give an account access to this role.
+     */
+    function addSigner(address account) internal {
+        require(!has(account), "Roles: account already has role");
+        _signers[account] = true;
+    }
+
+    /**
+     * @dev Remove an account's access to this role.
+     */
+    function removeSigner(address account) internal {
+        require(has(account), "Roles: account does not have role");
+        _signers[account] = false;
+    }
+
+    /**
+     * @dev Check if an account has this role.
+     * @return bool
+     */
+    function has(address account) internal view returns (bool) {
+        require(account != address(0), "Roles: account is the zero address");
+        return _signers[account];
     }
 
     /* Allow owner to get the data of stored games */

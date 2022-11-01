@@ -82,9 +82,9 @@ describe("Metabet-test===>>>>", function () {
 
     let startAt = parseInt(new Date().getTime() / 1000) + 3600 * 10;
 
+    let initOddsDraw = 30;
     let initOddsTeamA = 10;
     let initOddsTeamB = 30;
-    let initOddsDraw = 30;
     // 计算赔率
     let oddsA =
       parseInt(((initOddsTeamB + initOddsDraw) / initOddsTeamA) * 100) + 100;
@@ -288,8 +288,8 @@ describe("Metabet-test===>>>>", function () {
     // const accounts = await hre.ethers.getSigners();
 
     let indexAccount = 0;
-    // 
-    let assetId = 1; 
+    //
+    let assetId = 1;
 
     let token = metatoken;
     // let token = new ethers.Contract(
@@ -335,7 +335,35 @@ describe("Metabet-test===>>>>", function () {
       smartBalance2
     );
   });
+  it("owner withdrawToken", async function () {
+    let token = metatoken;
+    let creatorBalance1 = await token.balanceOf(accounts[0].address);
+    let smartBalance1 = await token.balanceOf(metabet.address);
 
+    let metabetret = await metabet.withdrawToken({
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log(metabetret, "metabetret");
+
+    let creatorBalance2 = await token.balanceOf(accounts[0].address);
+    console.log(
+      "owner [",
+      accounts[0].address,
+      "] withdrawToken token creatorBalance1:",
+      creatorBalance1,
+      ",creatorBalance2:",
+      creatorBalance2
+    );
+    let smartBalance2 = await token.balanceOf(metabet.address);
+    console.log(
+      " smart [",
+      metabet.address,
+      "] withdrawToken token smartBalance1:",
+      smartBalance1,
+      ",smartBalance2:",
+      smartBalance2
+    );
+  });
   async function placeBet(type) {
     let indexAccount = type;
     let token = metatoken;

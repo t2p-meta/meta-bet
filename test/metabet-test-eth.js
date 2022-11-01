@@ -21,11 +21,30 @@ describe("Metabet-test===>>>>", function () {
     accounts = await ethers.getSigners();
 
     owner = accounts[0];
-    console.log("owner account 0", owner.address,"balance 1:",d(await accounts[0].getBalance()));
-    console.log("account 1", accounts[1].address,"balance 1:",d(await accounts[1].getBalance()));
-    console.log("account 2", accounts[2].address,"balance 2:",d(await accounts[2].getBalance()));
-    console.log("account 3", accounts[3].address,"balance 3:",d(await accounts[3].getBalance()));
-
+    console.log(
+      "owner account 0",
+      owner.address,
+      "balance 1:",
+      d(await accounts[0].getBalance())
+    );
+    console.log(
+      "account 1",
+      accounts[1].address,
+      "balance 1:",
+      d(await accounts[1].getBalance())
+    );
+    console.log(
+      "account 2",
+      accounts[2].address,
+      "balance 2:",
+      d(await accounts[2].getBalance())
+    );
+    console.log(
+      "account 3",
+      accounts[3].address,
+      "balance 3:",
+      d(await accounts[3].getBalance())
+    );
   });
   /**
    * 1.部署Metabet合约
@@ -40,7 +59,6 @@ describe("Metabet-test===>>>>", function () {
    * 2. 创建世界杯比赛
    */
   it("createMatch", async function () {
-
     let startAt = parseInt(new Date().getTime() / 1000) + 3600 * 10;
 
     let initOddsTeamA = 10;
@@ -232,7 +250,7 @@ describe("Metabet-test===>>>>", function () {
       ",creatorBalance2:",
       creatorBalance2
     );
-    let smartBalance2 =await metabet.getEthBalance();
+    let smartBalance2 = await metabet.getEthBalance();
     console.log(
       " smart [",
       metabet.address,
@@ -247,8 +265,8 @@ describe("Metabet-test===>>>>", function () {
     // const accounts = await hre.ethers.getSigners();
 
     let indexAccount = 0;
-    // 
-    let assetId = 1; 
+    //
+    let assetId = 1;
 
     // let token = metatoken;
     // let token = new ethers.Contract(
@@ -263,7 +281,7 @@ describe("Metabet-test===>>>>", function () {
     // );
 
     let creatorBalance1 = await accounts[indexAccount].getBalance();
-    let smartBalance1 =await metabet.getEthBalance();
+    let smartBalance1 = await metabet.getEthBalance();
     // type=1:4,type=2:5,type=3:6
     //type 1 draw  100
     //type 2 teamA 200 win
@@ -275,7 +293,7 @@ describe("Metabet-test===>>>>", function () {
       });
     console.log(metabetret, "metabetret");
 
-    let creatorBalance2 =await accounts[indexAccount].getBalance();
+    let creatorBalance2 = await accounts[indexAccount].getBalance();
     console.log(
       "creator [",
       accounts[indexAccount].address,
@@ -284,7 +302,7 @@ describe("Metabet-test===>>>>", function () {
       ",creatorBalance2:",
       creatorBalance2
     );
-    let smartBalance2 =await metabet.getEthBalance();
+    let smartBalance2 = await metabet.getEthBalance();
     console.log(
       " smart [",
       metabet.address,
@@ -295,6 +313,33 @@ describe("Metabet-test===>>>>", function () {
     );
   });
 
+  it("owner withdrawToken", async function () {
+    let creatorBalance1 = await accounts[0].getBalance();
+    let smartBalance1 = await metabet.getEthBalance();
+    let metabetret = await metabet.withdrawToken({
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log(metabetret, "metabetret");
+
+    let creatorBalance2 = await accounts[0].getBalance();
+    console.log(
+      "owner [",
+      accounts[0].address,
+      "] withdrawToken token creatorBalance1:",
+      creatorBalance1,
+      ",creatorBalance2:",
+      creatorBalance2
+    );
+    let smartBalance2 = await metabet.getEthBalance();
+    console.log(
+      " smart [",
+      metabet.address,
+      "] withdrawToken token smartBalance1:",
+      smartBalance1,
+      ",smartBalance2:",
+      smartBalance2
+    );
+  });
   async function placeBet(type) {
     let indexAccount = type;
     // let token = metatoken;
@@ -423,7 +468,6 @@ describe("Metabet-test===>>>>", function () {
   function d(bn) {
     return bn.div("1000000000000000").toNumber() / 1000;
   }
-
 
   function b(num) {
     return BigNumber.from(num);
