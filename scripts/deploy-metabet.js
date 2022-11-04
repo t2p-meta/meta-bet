@@ -81,6 +81,31 @@ async function withdraw() {
   console.log("MetaBet deployed to:", MetaBet.address);
 }
 /**
+ * 2. 创建世界杯比赛League
+ */
+async function createLeague() {
+  const accounts = await hre.ethers.getSigners();
+  let metabet = new ethers.Contract(metaBetAddress, metaBetAbi, accounts[0]);
+  //   function createLeague(
+  //     string _name,
+  //     string _country,
+  //     string _logo
+  // )
+  let _name = "World Cup";
+  let _country = "World";
+  let _logo = "https://media.api-sports.io/football/leagues/1.png";
+  let metabetret = await metabet.createLeague(_name, _country, _logo, {
+    gasLimit: BigNumber.from("8000000"),
+  });
+  console.log(metabetret, "createLeague metabetret");
+  console.log("createLeague deposit done");
+  let leagueInfo = await metabet.getLeague(_leagueId, {
+    gasLimit: BigNumber.from("8000000"),
+  });
+  console.log("League Info:", leagueInfo);
+}
+
+/**
  * 2. 创建世界杯比赛
  */
 async function createMatch() {
@@ -105,9 +130,9 @@ async function createMatch() {
   // let _matchInfo = [1, 2, 5, startAt, 1, metatoken, 10, 20, 30];
   const _matchInfo = {
     // teamA队名称
-    teamAName: 'USA',
+    teamAName: "USA",
     // teamB队名称
-    teamBName: 'agentina',
+    teamBName: "agentina",
     // 赢家手续费率 8% winnerfeerate (让玩家自己设置)
     winnerFeeRate: 800,
     // 比赛开始时间
@@ -140,6 +165,7 @@ async function createMatch() {
   console.log(token.address, "approve done:", totalOdds);
 
   let metabetret = await metabet.createMatch(
+    _leagueId,
     _apiMatchId,
     _matchResultLink,
     _matchInfo,
@@ -167,7 +193,6 @@ async function placeBet(type, _matchId) {
     metaBetAbi,
     accounts[indexAccount]
   );
-
 
   // let _matchId = 1;
   /**
@@ -279,8 +304,8 @@ async function closeMatch(_matchId) {
   let TEAM_A_WON_resultBetOn = 2;
   let TEAM_B_WON_resultBetOn = 3;
 
-  let scoreTeamA = 2
-  let scoreTeamB = 1
+  let scoreTeamA = 2;
+  let scoreTeamB = 1;
   //   function closeMatch(
   //   uint256 _matchId,
   //   uint8 _matchResult,
@@ -293,9 +318,15 @@ async function closeMatch(_matchId) {
   //   matchStarted(_matchId)
   //   validateMatchResult(_matchResult)
 
-  let metabetret = await metabet.closeMatch(_matchId, TEAM_A_WON_resultBetOn, scoreTeamA, scoreTeamB, {
-    gasLimit: BigNumber.from("8000000"),
-  });
+  let metabetret = await metabet.closeMatch(
+    _matchId,
+    TEAM_A_WON_resultBetOn,
+    scoreTeamA,
+    scoreTeamB,
+    {
+      gasLimit: BigNumber.from("8000000"),
+    }
+  );
   console.log(metabetret, "metabetret");
 
   console.log("deposit done");
@@ -317,6 +348,15 @@ async function getMatch() {
 
   let ret = await metaBet.getMatch(_matchId);
   console.log("Match Info:", ret);
+}
+
+async function getSmartAsset(assertId) {
+  const accounts = await hre.ethers.getSigners();
+
+  let metaBet = new ethers.Contract(metaBetAddress, metaBetAbi, accounts[5]);
+
+  let ret = await metaBet.getSmartAsset(assertId);
+  console.log("SmartAsset Info:", ret);
 }
 
 async function liquidateAsset(type, assetId) {
@@ -377,14 +417,17 @@ async function delay(sec) {
   });
 }
 //matic
-let _matchId = 2;
+let _leagueId = 1;
+let _matchId = 1;
 var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
-var metaBetAddress = "0xfb186a02eb85a1addee312ea8450284739357d14"; //
+var metaBetAddress = "0xC4fABc320da1957520901d504Af1c955217457aE"; //
 // 1.部署合约
-// deployMetaBet()
+deployMetaBet();
 // 1-1 蓝钻充值
 // deposit()
 // deploySmartBet()
+// 2.创建体育活动-世界杯押注项目
+// createLeague()
 // 2.创建世界杯押注项目
 // createMatch()
 // 3.押注世界杯项目
@@ -394,14 +437,15 @@ var metaBetAddress = "0xfb186a02eb85a1addee312ea8450284739357d14"; //
 // placeBet(3,_matchId) // teamB 300
 
 // startMatch(_matchId)
-closeMatch(_matchId)
+// closeMatch(_matchId)
 // 9.查询余额
 // view()
 // 10.获取赛程押注信息
-// getMatch()
-// 提取押注金额
-// type=1:4,type=2:5,type=3:6
-// liquidateAsset(2,8)
+getMatch()
+// getSmartAsset(3)
+  // 提取押注金额
+  // type=1:4,type=2:5,type=3:6
+  // liquidateAsset(2,8)
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);

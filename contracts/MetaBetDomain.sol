@@ -27,11 +27,30 @@ contract MetaBetDomain {
     uint8 private constant TEAM_B = 2;
 
     /**
+    体育运动联赛
+     */
+    struct League {
+        // 创建者
+        address creator;
+        // 联赛名称
+        string name;
+        // 国家
+        string country;
+        // 联赛logo
+        string logo;
+        // 标志（是否结束：默认flase）
+        bool flag;
+    }
+
+    /**
         第一次：createMatch
         第二次：chainLink获取比赛结果后更新
      */
     struct Match {
+        // 创建者
         address creator;
+        // league编号
+        uint256 leagueId;
         // 获取比赛结果链接
         string matchResultLink;
         uint256 totalPayoutTeamA;
@@ -39,6 +58,7 @@ contract MetaBetDomain {
         uint256 totalPayoutDraw;
         //totalCollected; 每取一笔更新对账结果
         uint256 totalWithDraw;
+        // 比赛项目是否存在
         bool exists;
         // A队得分 A 5
         uint8 scoreTeamA;
@@ -81,6 +101,8 @@ contract MetaBetDomain {
     struct SmartAsset {
         // 押注者
         address owner;
+        // league编号
+        uint256 leagueId;
         // 赛程ID
         uint256 matchId;
         // 押注 哪一方
@@ -99,6 +121,8 @@ contract MetaBetDomain {
         uint256 withdrawAmount;
         // withdraw_timestamp提取时间
         uint256 withdrawTimestamp;
+        // 押注team队名称
+        string betTeamName;
     }
 
     /**
@@ -124,5 +148,4 @@ contract MetaBetDomain {
         // 实时押注时间节点累计总金额：O
         uint256 totalPayoutDraw;
     }
-
 }

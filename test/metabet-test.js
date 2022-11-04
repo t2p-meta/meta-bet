@@ -15,15 +15,17 @@ describe("Metabet-test===>>>>", function () {
   let metabet;
   let metatoken;
   let owner;
+  let _leagueId = 1;
   let _matchId = 1;
 
   before(async function () {
     accounts = await ethers.getSigners();
 
     owner = accounts[0];
-    console.log("owner account 0", owner.address);
-    console.log("account 1", accounts[1].address);
-    console.log("account 2", accounts[2].address);
+    console.log("owner account 0", owner.address, ",balance:", toWei(10000));
+    console.log("account 1", accounts[1].address, ",balance:", toWei(10000));
+    console.log("account 2", accounts[2].address, ",balance:", toWei(10000));
+    console.log("account 3", accounts[3].address, ",balance:", toWei(10000));
   });
 
   it("Deployment should assign the total supply of tokens to the owner", async function () {
@@ -32,16 +34,12 @@ describe("Metabet-test===>>>>", function () {
     metatoken = await Token.deploy("Meta", "Meta", 1, toWei(100000000));
 
     const ownerBalance = await metatoken.balanceOf(owner.address);
-    tokenAddress = metatoken.address;
     expect(await metatoken.totalSupply()).to.equal(ownerBalance);
   });
 
   it("Should transfer tokens between accounts", async function () {
     const [owner, addr1, addr2, addr3] = accounts;
-    console.log(owner.address);
-    console.log(addr1.address);
-    console.log(addr2.address);
-    console.log(addr3.address);
+
     // const Token = await ethers.getContractFactory("SimpleToken");
 
     // const hardhatToken = await Token.deploy("HEHE", "HH", 1, 100000000);
@@ -68,14 +66,38 @@ describe("Metabet-test===>>>>", function () {
   /**
    * 1.部署Metabet合约
    */
-  it("Deployment metabet", async function () {
+  it("Deployment Metabet", async function () {
     const _bet = await ethers.getContractFactory("MetaBet");
     metabet = await _bet.deploy(metatoken.address);
-    metaBetAddress = metabet.address;
+    // metaBetAddress = metabet.address;
     console.log("Deployment metabet:............:", metabet.address);
   });
+
   /**
-   * 2. 创建世界杯比赛
+   * 2. 创建世界杯比赛League
+   */
+  it("createLeague", async function () {
+    //   function createLeague(
+    //     string _name,
+    //     string _country,
+    //     string _logo
+    // )
+    let _name = "World Cup";
+    let _country = "World";
+    let _logo = "https://media.api-sports.io/football/leagues/1.png";
+    let metabetret = await metabet.createLeague(_name, _country, _logo, {
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log(metabetret, "createLeague metabetret");
+    console.log("createLeague deposit done");
+    let leagueInfo = await metabet.getLeague(_leagueId, {
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log("League Info:", leagueInfo);
+  });
+
+  /**
+   * 2-1. 创建世界杯比赛
    */
   it("createMatch", async function () {
     let token = metatoken;
@@ -131,6 +153,7 @@ describe("Metabet-test===>>>>", function () {
     console.log(token.address, "approve done:", totalOdds);
 
     let metabetret = await metabet.createMatch(
+      _leagueId,
       _apiMatchId,
       _matchResultLink,
       _matchInfo,
@@ -139,6 +162,10 @@ describe("Metabet-test===>>>>", function () {
     console.log(metabetret, "createMatch metabetret");
 
     console.log("createMatch deposit done");
+    let matchInfo = await metabet.getMatch(_matchId, {
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log("Match Info:", matchInfo);
   });
 
   /**
@@ -450,7 +477,7 @@ describe("Metabet-test===>>>>", function () {
   async function view() {
     const accounts = await hre.ethers.getSigners();
 
-    let token = new ethers.Contract(tokenAddress, tokenAbi, accounts[0]);
+    let token = metatoken; // new ethers.Contract(tokenAddress, tokenAbi, accounts[0]);
     let tbalance = b(await token.balanceOf(metaBetAddress));
     console.log(metaBetAddress, "token balance:", tbalance);
   }

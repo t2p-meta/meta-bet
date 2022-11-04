@@ -15,6 +15,7 @@ describe("Metabet-test===>>>>", function () {
   let metabet;
   let metatoken;
   let owner;
+  let _leagueId = 1;
   let _matchId = 1;
 
   before(async function () {
@@ -55,8 +56,32 @@ describe("Metabet-test===>>>>", function () {
     metaBetAddress = metabet.address;
     console.log("Deployment metabet:............:", metabet.address);
   });
+
   /**
-   * 2. 创建世界杯比赛
+   * 2-1. 创建世界杯比赛League
+   */
+  it("createLeague", async function () {
+    //   function createLeague(
+    //     string _name,
+    //     string _country,
+    //     string _logo
+    // )
+    let _name = "World Cup";
+    let _country = "World";
+    let _logo = "https://media.api-sports.io/football/leagues/1.png";
+    let metabetret = await metabet.createLeague(_name, _country, _logo, {
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log(metabetret, "createLeague metabetret");
+    console.log("createLeague deposit done");
+    let leagueInfo = await metabet.getLeague(_leagueId, {
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log("League Info:", leagueInfo);
+  });
+
+  /**
+   * 2-2. 创建世界杯比赛
    */
   it("createMatch", async function () {
     let startAt = parseInt(new Date().getTime() / 1000) + 3600 * 10;
@@ -108,6 +133,7 @@ describe("Metabet-test===>>>>", function () {
     // console.log(token.address, "approve done:", totalOdds);
 
     let metabetret = await metabet.createMatch(
+      _leagueId,
       _apiMatchId,
       _matchResultLink,
       _matchInfo,
@@ -116,6 +142,10 @@ describe("Metabet-test===>>>>", function () {
     console.log(metabetret, "createMatch metabetret");
 
     console.log("createMatch deposit done");
+    let matchInfo = await metabet.getMatch(_matchId, {
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log("Match Info:", matchInfo);
   });
 
   /**
