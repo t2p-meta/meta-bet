@@ -129,6 +129,8 @@ async function createMatch() {
 
   // let _matchInfo = [1, 2, 5, startAt, 1, metatoken, 10, 20, 30];
   const _matchInfo = {
+    // draw队名称
+    drawName: "draw",
     // teamA队名称
     teamAName: "USA",
     // teamB队名称
@@ -304,6 +306,7 @@ async function closeMatch(_matchId) {
   let TEAM_A_WON_resultBetOn = 2;
   let TEAM_B_WON_resultBetOn = 3;
 
+  let scoreDraw = 0;
   let scoreTeamA = 2;
   let scoreTeamB = 1;
   //   function closeMatch(
@@ -321,6 +324,7 @@ async function closeMatch(_matchId) {
   let metabetret = await metabet.closeMatch(
     _matchId,
     TEAM_A_WON_resultBetOn,
+    scoreDraw,
     scoreTeamA,
     scoreTeamB,
     {
@@ -420,29 +424,29 @@ async function delay(sec) {
 let _leagueId = 1;
 let _matchId = 1;
 var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
-var metaBetAddress = "0xC4fABc320da1957520901d504Af1c955217457aE"; //
+var metaBetAddress = "0xAe7F8D6d4Ce6c97E19Eacd8FF0c2c42D2b7f69f6"; //
 // 1.部署合约
-deployMetaBet();
+// deployMetaBet()
 // 1-1 蓝钻充值
 // deposit()
 // deploySmartBet()
 // 2.创建体育活动-世界杯押注项目
-// createLeague()
-// 2.创建世界杯押注项目
-// createMatch()
-// 3.押注世界杯项目
+createLeague()
+  // 2.创建世界杯押注项目
+  // createMatch()
+  // 3.押注世界杯项目
 
-// placeBet(1,_matchId) // draw 100
-// placeBet(2,_matchId) // teamA 200
-// placeBet(3,_matchId) // teamB 300
+  // placeBet(1,_matchId) // draw 100
+  // placeBet(2,_matchId) // teamA 200
+  // placeBet(3,_matchId) // teamB 300
 
-// startMatch(_matchId)
-// closeMatch(_matchId)
-// 9.查询余额
-// view()
-// 10.获取赛程押注信息
-getMatch()
-// getSmartAsset(3)
+  // startMatch(_matchId)
+  // closeMatch(_matchId)
+  // 9.查询余额
+  // view()
+  // 10.获取赛程押注信息
+  // getMatch()
+  // getSmartAsset(3)
   // 提取押注金额
   // type=1:4,type=2:5,type=3:6
   // liquidateAsset(2,8)

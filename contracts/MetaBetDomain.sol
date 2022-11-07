@@ -60,6 +60,8 @@ contract MetaBetDomain {
         uint256 totalWithDraw;
         // 比赛项目是否存在
         bool exists;
+        // raw名称(非team队，默认draw)
+        uint8 scoreDraw;
         // A队得分 A 5
         uint8 scoreTeamA;
         // B队得分 scoreB 1
@@ -78,6 +80,8 @@ contract MetaBetDomain {
 
     // Match base Info
     struct MatchInfo {
+        // draw名称(非team队，默认draw)
+        string drawName;
         // teamA队名称
         string teamAName;
         // teamB队名称
@@ -123,6 +127,14 @@ contract MetaBetDomain {
         uint256 withdrawTimestamp;
         // 押注team队名称
         string betTeamName;
+    }
+
+    /**
+    用户押注详情信息
+     */
+    struct MatchSmartAssetInfo {
+        SmartAsset smartAssetInfo;
+        Match matchDetail;
     }
 
     /**

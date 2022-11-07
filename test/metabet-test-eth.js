@@ -99,6 +99,8 @@ describe("Metabet-test===>>>>", function () {
 
     // let _matchInfo = [1, 2, 5, startAt, 1, metatoken, 10, 20, 30];
     const _matchInfo = {
+      // draw队名称
+      drawName: "draw",
       // teamA队名称
       teamAName: "USA",
       // teamB队名称
@@ -202,6 +204,7 @@ describe("Metabet-test===>>>>", function () {
     let TEAM_A_WON_resultBetOn = 2;
     let TEAM_B_WON_resultBetOn = 3;
 
+    let scoreDraw = 0;
     let scoreTeamA = 2;
     let scoreTeamB = 1;
     //   function closeMatch(
@@ -219,6 +222,7 @@ describe("Metabet-test===>>>>", function () {
     let metabetret = await metabet.closeMatch(
       _matchId,
       TEAM_A_WON_resultBetOn,
+      scoreDraw,
       scoreTeamA,
       scoreTeamB,
       {
@@ -370,6 +374,14 @@ describe("Metabet-test===>>>>", function () {
       smartBalance2
     );
   });
+  it("getMatchSmartAssetInfo", async function () {
+    let assetId = 5;
+    let metabetret = await metabet.getMatchSmartAssetInfo(assetId, {
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log(metabetret, "getMatchSmartAssetInfo");
+  });
+
   async function placeBet(type) {
     let indexAccount = type;
     // let token = metatoken;

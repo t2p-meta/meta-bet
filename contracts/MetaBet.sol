@@ -115,16 +115,16 @@ contract MetaBet is MetaBetDomain {
     event LeagueClosedEvent(
         address indexed by,
         uint256 indexed leagueId,
-        uint256 closedAt
+        uint256 indexed closedAt
     );
 
     //Can be used by the clients to get all matches in a particular time
     event MatchCreatedEvent(
         address indexed creator,
         uint256 indexed leagueId,
-        uint256 indexed matchId,
+        uint256 matchId,
         uint256 apiMatchId,
-        uint256 createdOn,
+        uint256 indexed createdOn,
         MatchInfo info
     );
 
@@ -449,6 +449,7 @@ contract MetaBet is MetaBetDomain {
             _matchInfo.initOddsDraw,
             0,
             true,
+            0, // 平或X队得分
             0, // A队得分 A 0
             0, // B队得分 scoreB 0
             0, // 最终赢率（含本金） finalOdds 0
@@ -798,6 +799,7 @@ contract MetaBet is MetaBetDomain {
     function closeMatch(
         uint256 _matchId,
         uint8 _matchResult,
+        uint8 scoreDraw,
         uint8 scoreTeamA,
         uint8 scoreTeamB
     )
@@ -812,7 +814,13 @@ contract MetaBet is MetaBetDomain {
         // getMatchResult(_matchId);
         MatchResult matchResult = MatchResult(_matchResult);
         // 设置比赛结果
-        setMatchResult(_matchId, matchResult, scoreTeamA, scoreTeamB);
+        setMatchResult(
+            _matchId,
+            matchResult,
+            scoreDraw,
+            scoreTeamA,
+            scoreTeamB
+        );
 
         if (matchResult == MatchResult.TEAM_A_WON) {
             invalidateAssets(matchBets[_matchId][MatchResult.TEAM_B_WON]);
@@ -836,10 +844,12 @@ contract MetaBet is MetaBetDomain {
     function setMatchResult(
         uint256 _matchId,
         MatchResult _matchResult,
+        uint8 scoreDraw,
         uint8 scoreTeamA,
         uint8 scoreTeamB
     ) internal {
         matches[_matchId].result = _matchResult;
+        matches[_matchId].scoreDraw = scoreDraw;
         matches[_matchId].scoreTeamA = scoreTeamA;
         matches[_matchId].scoreTeamB = scoreTeamB;
         // 计算最终的 A,B,平 的赔率
@@ -1060,6 +1070,23 @@ contract MetaBet is MetaBetDomain {
         returns (SmartAsset memory asset)
     {
         return smartAssets[_smartAssetId];
+    }
+
+    /*
+     *  @notice  Fetch single SmartAsset
+     *  @dev
+     *  @param   _smartAssetId
+     *  @return  asset details
+     */
+    function getMatchSmartAssetInfo(uint256 _smartAssetId)
+        public
+        view
+        returns (MatchSmartAssetInfo memory info)
+    {
+        SmartAsset memory smartAssetInfo = smartAssets[_smartAssetId];
+        Match memory matchDetail = matches[smartAssetInfo.matchId];
+        info = MatchSmartAssetInfo(smartAssetInfo, matchDetail);
+        return info;
     }
 
     /*
