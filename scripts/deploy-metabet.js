@@ -424,7 +424,7 @@ async function delay(sec) {
 let _leagueId = 1;
 let _matchId = 1;
 var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
-var metaBetAddress = "0xAe7F8D6d4Ce6c97E19Eacd8FF0c2c42D2b7f69f6"; //
+var metaBetAddress = "0x14A66D52c2D969328387432725E4D1b2E72cB23B"; //
 // 1.部署合约
 // deployMetaBet()
 // 1-1 蓝钻充值

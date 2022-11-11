@@ -687,7 +687,7 @@ contract MetaBet is MetaBetDomain {
         if (_matchResultBetOn == MatchResult.TEAM_A_WON) {
             betTeamName = matches[_matchId].matchInfo.teamAName;
         } else if (_matchResultBetOn == MatchResult.TEAM_B_WON) {
-            betTeamName = matches[_matchId].matchInfo.teamAName;
+            betTeamName = matches[_matchId].matchInfo.teamBName;
         }
 
         smartAssets[smartAssetId] = SmartAsset(
@@ -999,6 +999,8 @@ contract MetaBet is MetaBetDomain {
         matches[smartAsset.matchId].totalWithDraw = matches[smartAsset.matchId]
             .totalWithDraw
             .add(lastWinValue);
+        // 手续费金额
+        smartAssets[_smartAssetId].feesAmount = feesAmount;
         // withdraw_到手提款金额
         smartAssets[_smartAssetId].withdrawAmount = withdrawAmount;
         // withdraw_timestamp提取时间
