@@ -10,6 +10,10 @@ const tokenAbi = getAbi(
 );
 const metaBetAbi = getAbi("./artifacts/contracts/MetaBet.sol/MetaBet.json");
 
+const metaBetMatchAbi = getAbi(
+  "./artifacts/contracts/MetaBetMatch.sol/MetaBetMatch.json"
+);
+
 /**
  * 0. 部署合约
  */
@@ -34,12 +38,38 @@ async function deployMetaBet() {
   // let tbalance = await token.balanceOf(accounts[0].address);
   // console.log(accounts[0].address, " balance:", await accounts[0].getBalance());
   // console.log(accounts[0].address, "token balance:", tbalance);
+
   const _MetaBet = await ethers.getContractFactory("MetaBet");
   let MetaBet = await _MetaBet.deploy(tokenAddress, {
     gasLimit: BigNumber.from("8000000"),
   });
   await MetaBet.deployed();
   console.log("MetaBet deployed to:", MetaBet.address);
+}
+
+/**
+ * 1.1 部署合约
+ */
+async function deployMetaBetMatch() {
+  // const accounts = await hre.ethers.getSigners();
+  // let token = new ethers.Contract(tokenAddress, tokenAbi, accounts[0]);
+  // let tbalance = await token.balanceOf(accounts[0].address);
+  // console.log(accounts[0].address, " balance:", await accounts[0].getBalance());
+  // console.log(accounts[0].address, "token balance:", tbalance);
+  // var metaBetAddress = "0x14A66D52c2D969328387432725E4D1b2E72cB23B"; //
+  // let _linkToken = '0x326C977E6efc84E512bB9C30f76E30c160eD06FB';
+  // let _oracle = '0x40193c8518BB267228Fc409a613bDbD8eC5a97b3';
+  const _MetaBetMatch = await ethers.getContractFactory("MetaBetMatch");
+  let MetaBetMatch = await _MetaBetMatch.deploy(
+    metaBetAddress,
+    _linkToken,
+    _oracle,
+    {
+      gasLimit: BigNumber.from("8000000"),
+    }
+  );
+  await MetaBetMatch.deployed();
+  console.log("MetaBetMatch deployed to:", MetaBetMatch.address);
 }
 
 /**
@@ -132,9 +162,9 @@ async function createMatch() {
     // draw队名称
     drawName: "draw",
     // teamA队名称
-    teamAName: "USA",
+    teamAName: "Qatar",
     // teamB队名称
-    teamBName: "agentina",
+    teamBName: "Ecuador",
     // 赢家手续费率 8% winnerfeerate (让玩家自己设置)
     winnerFeeRate: 800,
     // 比赛开始时间
@@ -148,8 +178,8 @@ async function createMatch() {
     initOddsDraw: toWei(initOddsDraw),
   };
 
-  let _apiMatchId = 1002;
-  let _matchResultLink = "https://api-football-v1.p.rapidapi.com/v2/";
+  let _apiMatchId = 307358;
+  let _matchResultLink = "fixtures/id/" + _apiMatchId;
   // function createMatch(
   //     uint256 _apiMatchId,
   //     string calldata _matchResultLink,
@@ -336,6 +366,25 @@ async function closeMatch(_matchId) {
   console.log("deposit done");
 }
 
+/**
+ * 6. 查询第三方赛程信息（chainLink）
+ */
+async function requestSchedule() {
+  const accounts = await hre.ethers.getSigners();
+  let metabetMatch = new ethers.Contract(
+    metaBetMatchAddress,
+    metaBetMatchAbi,
+    accounts[0]
+  );
+
+  let metabetret = await metabetMatch.requestSchedule({
+    gasLimit: BigNumber.from("8000000"),
+  });
+  console.log(metabetret, "metabetret");
+
+  console.log("deposit done");
+}
+
 async function view() {
   const accounts = await hre.ethers.getSigners();
 
@@ -424,16 +473,22 @@ async function delay(sec) {
 let _leagueId = 1;
 let _matchId = 1;
 var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
-var metaBetAddress = "0x14A66D52c2D969328387432725E4D1b2E72cB23B"; //
+var metaBetAddress = "0x7B0112D503E508E21Dc10B7811f2e2A16D85035f"; //
+
+var metaBetMatchAddress = "0xbDd8C0dE328BB5E9a19E1D0a81a87De489d55754"; //
+
+let _linkToken = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB";
+let _oracle = "0x40193c8518BB267228Fc409a613bDbD8eC5a97b3";
 // 1.部署合约
 // deployMetaBet()
+// deployMetaBetMatch()
 // 1-1 蓝钻充值
 // deposit()
 // deploySmartBet()
 // 2.创建体育活动-世界杯押注项目
-createLeague()
-  // 2.创建世界杯押注项目
-  // createMatch()
+// createLeague()
+// 2.创建世界杯押注项目
+// createMatch()
   // 3.押注世界杯项目
 
   // placeBet(1,_matchId) // draw 100
@@ -450,6 +505,7 @@ createLeague()
   // 提取押注金额
   // type=1:4,type=2:5,type=3:6
   // liquidateAsset(2,8)
+  requestSchedule()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);

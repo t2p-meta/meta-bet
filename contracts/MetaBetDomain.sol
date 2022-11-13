@@ -2,7 +2,32 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-contract MetaBetDomain {
+abstract contract MetaBetDomain {
+    // flag to determine if contracts core functionalities can be performed
+    bool circuitBreaker = false;
+
+    // 体育运动联赛
+    mapping(uint256 => League) leagues;
+
+    // holds all NFTs issued to winners
+    mapping(uint256 => SmartAsset) smartAssets; // 押注表
+
+    // holds all created matches (key: idCounter)
+    mapping(uint256 => Match) matches; // 赛程表
+    // holds all bets on a match
+    // mapping(matchId => mapping(gameResult => smartAssetId[])) matchBets;
+    mapping(uint256 => mapping(MatchResult => uint256[])) matchBets;
+
+    // holds all apiMatchId -> onChain-MatchId to prevent duplicate entries
+    // 同一个赛程Id可能从不同的网站获取赔率
+    mapping(uint256 => uint256) apiMatches;
+
+    enum Role {
+        ADMIN,
+        CREATOR,
+        OPERATOR
+    }
+
     enum AssetType {
         ETH,
         ERC20,
@@ -22,9 +47,6 @@ contract MetaBetDomain {
         STARTED,
         FINISHED
     }
-
-    uint8 private constant TEAM_A = 1;
-    uint8 private constant TEAM_B = 2;
 
     /**
     体育运动联赛
@@ -159,5 +181,104 @@ contract MetaBetDomain {
         uint256 totalPayoutTeamB;
         // 实时押注时间节点累计总金额：O
         uint256 totalPayoutDraw;
+    }
+
+    ////////////////////////////////////////
+    //                                    //
+    //              MODIFIERS             //
+    //                                    //
+    ////////////////////////////////////////
+
+    /*
+     *  @notice  Ensure league exists
+     */
+    modifier leagueExists(uint256 _leagueId) {
+        require(leagues[_leagueId].flag, "on chain league does not exist");
+        _;
+    }
+
+    /*
+     *  @notice  Ensure match does not previously exist
+     */
+    modifier isNewMatch(uint256 _matchId) {
+        require(!matches[_matchId].exists, "on chain match exists");
+        _;
+    }
+
+    /*
+     *  @notice  Ensure api match does not previously exist
+     */
+    modifier isNewAPIMatch(uint256 _api_matchId) {
+        require(apiMatches[_api_matchId] == 0, "api match ID exists");
+        _;
+    }
+
+    /*
+     *  @notice  Ensure match exists
+     */
+    modifier matchExists(uint256 _matchId) {
+        require(matches[_matchId].exists, "on chain match does not exist");
+        _;
+    }
+
+    /*
+     *  @notice  Ensure match has not started
+     */
+    modifier matchNotStarted(uint256 _matchId) {
+        require(
+            matches[_matchId].state == MatchState.NOT_STARTED,
+            "match started"
+        );
+        _;
+    }
+
+    /*
+     *  @notice  Ensure match has started
+     */
+    modifier matchStarted(uint256 _matchId) {
+        require(
+            matches[_matchId].state == MatchState.STARTED,
+            "match not started"
+        );
+        _;
+    }
+
+    /*
+     *  @notice  Ensure match has ended
+     */
+    modifier matchFinished(uint256 _matchId) {
+        require(
+            matches[_matchId].state == MatchState.FINISHED,
+            "match not finished"
+        );
+        _;
+    }
+
+    /*
+     *  @notice Checks if core functionalities can be performed
+     *  @dev Checks if the circuitBreaker state variable is false
+     */
+    modifier isCircuitBreakOff() {
+        require(!circuitBreaker, "Circuit breaker is on");
+        _;
+    }
+
+    /*
+     *  @notice  Ensures bets are allowed on the match
+     *  @dev     The totalCollected on the match must be greater than the total payout on the team the bettor wants to bet on. The incoming bet is inclusive in the calculation
+     */
+    modifier isBetAllowed(uint256 _matchId) {
+        require(true, "Bet is not allowed");
+        _;
+    }
+
+    modifier validateMatchResult(uint8 _matchResult) {
+        require(
+            MatchResult(_matchResult) == MatchResult.TEAM_A_WON ||
+                MatchResult(_matchResult) == MatchResult.TEAM_B_WON ||
+                MatchResult(_matchResult) == MatchResult.DRAW,
+            "Invalid match result"
+        );
+        _;
     }
 }

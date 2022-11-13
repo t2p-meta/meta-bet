@@ -2,12 +2,17 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 // import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+// import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./MetaBetDomain.sol";
+import "./MetaWallet.sol";
+import "./MetaBetInterface.sol";
+import "./MetaBetLib.sol";
 import "hardhat/console.sol";
 
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/18c7efe800df6fc19554ece3b1f238e9e028a1db/contracts/token/ERC721/ERC721.sol";
@@ -17,9 +22,17 @@ import "hardhat/console.sol";
 /*
  * @notice SmartBet core smart contract. Handles matches, bets and farming
  */
-contract MetaBet is MetaBetDomain {
+contract MetaBet is
+    Context,
+    Ownable,
+    MetaBetDomain,
+    MetaWallet,
+    MetaBetInterface
+{
     using Counters for Counters.Counter;
     using SafeMath for uint256;
+    using MetaBetLib for uint256;
+
     uint256 private constant MAX_DEPOSIT = 999999;
 
     // 押注者数量，如果押注用户为0或者所有用户都已经提取完资产，管理者可以提取剩余的资产余额
@@ -30,9 +43,6 @@ contract MetaBet is MetaBetDomain {
     //         STATE VARIABLES            //
     //                                    //
     ////////////////////////////////////////
-    // contract owner adress
-    address private owner;
-
     // incremented id for league id generation
     Counters.Counter private leagueIds;
 
@@ -42,144 +52,33 @@ contract MetaBet is MetaBetDomain {
     // incremented id for NFT minting
     Counters.Counter private tokenIds;
 
-    // 支持充值token
-    IERC20 public erc20Token;
-    // 币种记录表
-    mapping(address => bool) supportTokens;
-    // 币种列表
-    address[] private tokens;
+    // 比赛创建者角色信息-管理员
+    mapping(address => bool) private _operators;
 
     // 比赛创建者角色信息
     mapping(address => bool) private _signers;
 
-    // flag to determine if contracts core functionalities can be performed
-    bool circuitBreaker = false;
-
     // 重入工具判断
     bool retryAttach = false;
-
-    // 体育运动联赛
-    mapping(uint256 => League) leagues;
-
-    // holds all NFTs issued to winners
-    mapping(uint256 => SmartAsset) smartAssets; // 押注表
-
-    // holds all created matches (key: idCounter)
-    mapping(uint256 => Match) matches; // 赛程表
-
-    // holds all apiMatchId -> onChainMatchId to prevent duplicate entries
-    // 同一个赛程Id可能从不同的网站获取赔率
-    mapping(uint256 => uint256) apiMatches;
-
-    // holds all bets on a match
-    // mapping(matchId => mapping(gameResult => smartAssetId[])) matchBets;
-    mapping(uint256 => mapping(MatchResult => uint256[])) matchBets;
 
     // mapping(bytes32 => uint256) matchResultRequestIds;
 
     mapping(address => uint256[]) private matchesBetted;
 
     // Mapping from smartAssetId to owner address
-    mapping(uint256 => address) private _owners; // 关联关系
-
-    // Token Balance = 蓝钻数量
-    mapping(address => uint256) public tokenBalance;
+    mapping(uint256 => address) private _smartAssetIdOwners; // 关联关系
 
     ////////////////////////////////////////
     //                                    //
     //           CONSTRUCTOR              //
     //                                    //
     ////////////////////////////////////////
-
     constructor(address _erc20Token) {
-        owner = msg.sender;
         erc20Token = IERC20(_erc20Token);
         addToken(_erc20Token);
+        addSigner(_msgSender(), Role.OPERATOR);
         console.log("deploy ..... contract meta bet...");
     }
-
-    ////////////////////////////////////////
-    //                                    //
-    //              EVENTS                //
-    //                                    //
-    ////////////////////////////////////////
-
-    //Can be used by the clients to get all Leagues in a particular time
-    event LeagueCreatedEvent(
-        address indexed creator,
-        uint256 indexed leagueId,
-        uint256 indexed createdOn,
-        League leagueInfo
-    );
-
-    event LeagueClosedEvent(
-        address indexed by,
-        uint256 indexed leagueId,
-        uint256 indexed closedAt
-    );
-
-    //Can be used by the clients to get all matches in a particular time
-    event MatchCreatedEvent(
-        address indexed creator,
-        uint256 indexed leagueId,
-        uint256 matchId,
-        uint256 apiMatchId,
-        uint256 indexed createdOn,
-        MatchInfo info
-    );
-
-    //Can be used by the clients to get all bets placed by a better in a particular time
-    event BetPlacedEvent(
-        address indexed bettor,
-        uint256 indexed leagueId,
-        uint256 indexed matchId,
-        MatchResult result,
-        uint256 amount,
-        uint256 betPlacedAt,
-        AssetType assetType,
-        address payToken
-    );
-    event SmartAssetAwardedEvent(
-        address indexed awardee,
-        uint256 indexed leagueId,
-        uint256 indexed matchId,
-        MatchResult result,
-        uint256 smartAssetId,
-        uint256 awardedAt,
-        AssetType assetType,
-        address payToken,
-        // 实时押注金额信息
-        RealTimeAmount realTimeAmount
-    );
-    event MatchStartEvent(
-        address indexed by,
-        uint256 indexed leagueId,
-        uint256 indexed matchId,
-        uint256 startAt
-    );
-    event MatchClosedEvent(
-        address indexed by,
-        uint256 indexed leagueId,
-        uint256 indexed matchId,
-        uint256 closedAt
-    );
-    event MatchResultSetEvent(
-        uint256 indexed leagueId,
-        uint256 indexed matchId,
-        MatchResult result,
-        uint256 setAt,
-        uint8 scoreTeamA,
-        uint8 scoreTeamB
-    );
-    event AssetLiquidatedEvent(
-        address indexed by,
-        uint256 indexed leagueId,
-        uint256 indexed matchId,
-        uint256 amount,
-        uint256 liquidatedAt,
-        AssetType assetType,
-        address payToken
-    );
 
     ////////////////////////////////////////
     //                                    //
@@ -187,92 +86,19 @@ contract MetaBet is MetaBetDomain {
     //                                    //
     ////////////////////////////////////////
 
-    /*
-     *  @notice  Restrict caller only owner
-     */
-    modifier onlyOwner() {
-        require(msg.sender == owner, "caller is not owner");
-        _;
-    }
-
     modifier onlySigner() {
         require(
-            isSigner(msg.sender),
+            isSigner(_msgSender(), Role.CREATOR),
             "SignerRole: caller does not have the Signer role"
         );
         _;
     }
-    /*
-     *  @notice  Ensure league exists
-     */
-    modifier leagueExists(uint256 _leagueId) {
-        require(leagues[_leagueId].flag, "on chain league does not exist");
-        _;
-    }
 
-    /*
-     *  @notice  Ensure match does not previously exist
-     */
-    modifier isNewMatch(uint256 _matchId) {
-        require(!matches[_matchId].exists, "on chain match exists");
-        _;
-    }
-
-    /*
-     *  @notice  Ensure api match does not previously exist
-     */
-    modifier isNewAPIMatch(uint256 _api_matchId) {
-        require(apiMatches[_api_matchId] == 0, "api match ID exists");
-        _;
-    }
-
-    /*
-     *  @notice  Ensure match exists
-     */
-    modifier matchExists(uint256 _matchId) {
-        require(matches[_matchId].exists, "on chain match does not exist");
-        _;
-    }
-
-    /*
-     *  @notice  Ensure match has not started
-     */
-    modifier matchNotStarted(uint256 _matchId) {
+    modifier onlyOperator() {
         require(
-            matches[_matchId].state == MatchState.NOT_STARTED,
-            "match started"
+            isSigner(_msgSender(), Role.OPERATOR),
+            "OperatorRole: caller does not have the Operator role"
         );
-        _;
-    }
-
-    /*
-     *  @notice  Ensure match has started
-     */
-    modifier matchStarted(uint256 _matchId) {
-        require(
-            matches[_matchId].state == MatchState.STARTED,
-            "match not started"
-        );
-        _;
-    }
-
-    /*
-     *  @notice  Ensure match has ended
-     */
-    modifier matchFinished(uint256 _matchId) {
-        require(
-            matches[_matchId].state == MatchState.FINISHED,
-            "match not finished"
-        );
-        _;
-    }
-
-    /*
-     *  @notice Checks if core functionalities can be performed
-     *  @dev Checks if the circuitBreaker state variable is false
-     */
-    modifier isCircuitBreakOff() {
-        require(!circuitBreaker, "Circuit breaker is on");
         _;
     }
 
@@ -280,34 +106,18 @@ contract MetaBet is MetaBetDomain {
      *  @notice Checks if the NFT is valid
      *  @dev Validates NFT
      */
-    modifier validateToken(uint256 _tokenId) {
-        require(_exists(_tokenId), "Invalid token");
+    modifier validateToken(uint256 _smartAssetId) {
+        require(_exists(_smartAssetId), "Invalid smartAssetId");
         _;
     }
 
     /*
      *  @notice  Ensure token belongs to the caller
      */
-    modifier isTokenOwner(uint256 _tokenId) {
-        require(ownerOf(_tokenId) == msg.sender, "caller is not token owner");
-        _;
-    }
-
-    /*
-     *  @notice  Ensures bets are allowed on the match
-     *  @dev     The totalCollected on the match must be greater than the total payout on the team the bettor wants to bet on. The incoming bet is inclusive in the calculation
-     */
-    modifier isBetAllowed(uint256 _matchId) {
-        require(true, "Bet is not allowed");
-        _;
-    }
-
-    modifier validateMatchResult(uint8 _matchResult) {
+    modifier isTokenOwner(uint256 _smartAssetId) {
         require(
-            MatchResult(_matchResult) == MatchResult.TEAM_A_WON ||
-                MatchResult(_matchResult) == MatchResult.TEAM_B_WON ||
-                MatchResult(_matchResult) == MatchResult.DRAW,
-            "Invalid match result"
+            smartAssetIdOwnerOf(_smartAssetId) == _msgSender(),
+            "caller is not token owner"
         );
         _;
     }
@@ -317,27 +127,6 @@ contract MetaBet is MetaBetDomain {
     //              FUNCTIONS             //
     //                                    //
     ////////////////////////////////////////
-
-    /* Allow users to deposit Tokens */
-    function deposit(uint256 _amount) public payable {
-        // require(_amount <= MAX_DEPOSIT, "Cannot deposit more than 999999");
-        require(_amount > 0, "Cannot deposit 0");
-
-        require(erc20Token.transferFrom(msg.sender, address(this), _amount));
-        tokenBalance[msg.sender] = tokenBalance[msg.sender] + _amount;
-    }
-
-    /* Allow users to withdraw Tokens */
-    function withdraw(uint256 _amount) public {
-        require(
-            _amount <= tokenBalance[msg.sender],
-            "Cannot withdraw more than account balance"
-        );
-        require(_amount > 0, "Cannot withdraw 0");
-
-        require(erc20Token.transfer(msg.sender, _amount));
-        tokenBalance[msg.sender] = tokenBalance[msg.sender] - _amount;
-    }
 
     /*
      *  @notice  New League creation
@@ -353,14 +142,14 @@ contract MetaBet is MetaBetDomain {
         leagueIds.increment();
         uint256 leagueId = leagueIds.current();
 
-        leagues[leagueId] = League(msg.sender, _name, _country, _logo, true);
+        leagues[leagueId] = League(_msgSender(), _name, _country, _logo, true);
         //  address creator,
         // uint256 indexed leagueId,
         // uint256 indexed createdOn,
         // League leagueInfo
         uint256 createdOnDay = block.timestamp - (block.timestamp % 86400);
         emit LeagueCreatedEvent(
-            msg.sender,
+            _msgSender(),
             leagueId,
             createdOnDay,
             leagues[leagueId]
@@ -381,7 +170,7 @@ contract MetaBet is MetaBetDomain {
         returns (uint256)
     {
         leagues[_leagueId].flag = true;
-        emit LeagueClosedEvent(msg.sender, _leagueId, block.timestamp);
+        emit LeagueClosedEvent(_msgSender(), _leagueId, block.timestamp);
         return _leagueId;
     }
 
@@ -421,14 +210,14 @@ contract MetaBet is MetaBetDomain {
                 _matchInfo.initOddsDraw;
             require(
                 IERC20(_matchInfo.payToken).transferFrom(
-                    msg.sender,
+                    _msgSender(),
                     address(this),
                     amountBet
                 )
             );
         }
-        if (!isSigner(msg.sender)) {
-            addSigner(msg.sender);
+        if (!isSigner(_msgSender(), Role.CREATOR)) {
+            addSigner(_msgSender(), Role.CREATOR);
         }
         matchIds.increment();
         uint256 matchId = matchIds.current();
@@ -441,7 +230,7 @@ contract MetaBet is MetaBetDomain {
         apiMatches[_apiMatchId] = matchId;
         // 创建比赛项目
         matches[matchId] = Match(
-            msg.sender,
+            _msgSender(),
             _leagueId,
             _matchResultLink,
             _matchInfo.initOddsTeamA,
@@ -461,7 +250,7 @@ contract MetaBet is MetaBetDomain {
 
         // 初始化A队押注金额
         awardBetSmartAsset(
-            msg.sender,
+            _msgSender(),
             _leagueId,
             matchId,
             MatchResult.TEAM_A_WON,
@@ -472,7 +261,7 @@ contract MetaBet is MetaBetDomain {
         );
         // 初始化B队押注金额
         awardBetSmartAsset(
-            msg.sender,
+            _msgSender(),
             _leagueId,
             matchId,
             MatchResult.TEAM_B_WON,
@@ -483,7 +272,7 @@ contract MetaBet is MetaBetDomain {
         );
         // 初始化平押注金额
         awardBetSmartAsset(
-            msg.sender,
+            _msgSender(),
             _leagueId,
             matchId,
             MatchResult.DRAW,
@@ -506,21 +295,13 @@ contract MetaBet is MetaBetDomain {
     ) internal {
         uint256 createdOnDay = block.timestamp - (block.timestamp % 86400);
         emit MatchCreatedEvent(
-            msg.sender,
+            _msgSender(),
             _leagueId,
             _matchId,
             _apiMatchId,
             createdOnDay,
             _info
         );
-    }
-
-    function calculateAssetValue(uint256 _amountBet, uint256 _odds)
-        internal
-        pure
-        returns (uint256)
-    {
-        return _amountBet.mul(_odds).div(100);
     }
 
     /*
@@ -571,7 +352,7 @@ contract MetaBet is MetaBetDomain {
             require(amountBet != 0, "Invalid amount bet");
             require(
                 IERC20(_payAsset.payToken).transferFrom(
-                    msg.sender,
+                    _msgSender(),
                     address(this),
                     amountBet
                 )
@@ -601,7 +382,7 @@ contract MetaBet is MetaBetDomain {
 
         // 将押注金额mint成一个NFT作为流动性质押凭证，通过凭证质押获取额外利息
         uint256 smartAssetId = awardSmartAsset(
-            msg.sender,
+            _msgSender(),
             matches[_matchId].leagueId,
             _matchId,
             matchResultBetOn,
@@ -609,7 +390,7 @@ contract MetaBet is MetaBetDomain {
             realTimeAmount
         );
 
-        matchesBetted[msg.sender].push(smartAssetId);
+        matchesBetted[_msgSender()].push(smartAssetId);
         //Save bettor's bet
         matchBets[_matchId][matchResultBetOn].push(smartAssetId);
         // 更新押注ID
@@ -627,7 +408,7 @@ contract MetaBet is MetaBetDomain {
         uint256 _amountBet
     ) internal {
         emit BetPlacedEvent(
-            msg.sender,
+            _msgSender(),
             matches[_matchId].leagueId,
             _matchId,
             _matchResultBetOn,
@@ -680,7 +461,7 @@ contract MetaBet is MetaBetDomain {
         uint256 smartAssetId = tokenIds.current();
         // _mint(bettor, smartAssetId);
         // 创建资产白条押注关联关系
-        _owners[smartAssetId] = _bettor;
+        _smartAssetIdOwners[smartAssetId] = _bettor;
 
         string memory betTeamName = "DRAW";
         //update team's total payout
@@ -733,39 +514,26 @@ contract MetaBet is MetaBetDomain {
 
         if (matches[_matchId].result == MatchResult.TEAM_A_WON) {
             // TeamA最终赔率
-            matches[_matchId].finalOdds = calculateAssetOdds(
+            matches[_matchId].finalOdds = MetaBetLib.calculateAssetOdds(
                 totalPayoutDraw,
                 totalPayoutTeamB,
                 totalPayoutTeamA
             );
         } else if (matches[_matchId].result == MatchResult.TEAM_B_WON) {
             // TeamB最终赔率
-            matches[_matchId].finalOdds = calculateAssetOdds(
+            matches[_matchId].finalOdds = MetaBetLib.calculateAssetOdds(
                 totalPayoutDraw,
                 totalPayoutTeamA,
                 totalPayoutTeamB
             );
         } else {
             // TeamA和TeamB平局最终赔率
-            matches[_matchId].finalOdds = calculateAssetOdds(
+            matches[_matchId].finalOdds = MetaBetLib.calculateAssetOdds(
                 totalPayoutTeamB,
                 totalPayoutTeamA,
                 totalPayoutDraw
             );
         }
-    }
-
-    function calculateAssetOdds(
-        uint256 _oddsWin,
-        uint256 _oddsFailOne,
-        uint256 _oddsFailTwo
-    ) internal pure returns (uint256) {
-        return
-            _oddsWin
-                .add(_oddsFailOne)
-                .mul(100000000000000000)
-                .div(_oddsFailTwo)
-                .add(100000000000000000);
     }
 
     /*
@@ -775,13 +543,15 @@ contract MetaBet is MetaBetDomain {
      */
     function startMatch(uint256 _matchId)
         public
-        onlyOwner
+        virtual
+        override
+        onlyOperator
         matchExists(_matchId)
         matchNotStarted(_matchId)
     {
         matches[_matchId].state = MatchState.STARTED;
         emit MatchStartEvent(
-            msg.sender,
+            _msgSender(),
             matches[_matchId].leagueId,
             _matchId,
             block.timestamp
@@ -804,7 +574,9 @@ contract MetaBet is MetaBetDomain {
         uint8 scoreTeamB
     )
         public
-        onlyOwner
+        virtual
+        override
+        onlyOperator
         matchExists(_matchId)
         matchStarted(_matchId)
         validateMatchResult(_matchResult)
@@ -834,7 +606,7 @@ contract MetaBet is MetaBetDomain {
         }
 
         emit MatchClosedEvent(
-            msg.sender,
+            _msgSender(),
             matches[_matchId].leagueId,
             _matchId,
             block.timestamp
@@ -878,7 +650,7 @@ contract MetaBet is MetaBetDomain {
 
     function _burn(uint256 _smartAssetId) internal virtual {
         assetCount = assetCount - 1;
-        delete _owners[_smartAssetId];
+        delete _smartAssetIdOwners[_smartAssetId];
     }
 
     /*
@@ -956,7 +728,7 @@ contract MetaBet is MetaBetDomain {
                 feesAmount,
                 withdrawAmount
             );
-            payable(msg.sender).transfer(withdrawAmount);
+            payable(_msgSender()).transfer(withdrawAmount);
             // 给比赛发起者转账佣金
             payable(matches[smartAsset.matchId].creator).transfer(feesAmount);
             retryAttach = false;
@@ -981,7 +753,7 @@ contract MetaBet is MetaBetDomain {
             // 用户提款
             require(
                 IERC20(smartAsset.betInfo.payToken).transfer(
-                    msg.sender,
+                    _msgSender(),
                     withdrawAmount
                 )
             );
@@ -1007,7 +779,7 @@ contract MetaBet is MetaBetDomain {
         smartAssets[_smartAssetId].withdrawTimestamp = block.timestamp;
 
         emit AssetLiquidatedEvent(
-            msg.sender,
+            _msgSender(),
             smartAsset.leagueId,
             smartAsset.matchId,
             smartAsset.betInfo.payAmount,
@@ -1092,12 +864,12 @@ contract MetaBet is MetaBetDomain {
     }
 
     /*
-     *  @notice  Tells of the msg.sender is the admin
+     *  @notice  Tells of the _msgSender() is the admin
      *  @dev
-     *  @return  true if msg.sender is admin else false
+     *  @return  true if _msgSender() is admin else false
      */
     function isAdmin() public view returns (bool) {
-        return msg.sender == owner;
+        return _msgSender() == owner();
     }
 
     /*
@@ -1105,27 +877,37 @@ contract MetaBet is MetaBetDomain {
      *  @dev
      */
     function changeOwner(address newOwner) external onlyOwner {
-        owner = newOwner;
+        transferOwnership(newOwner);
     }
 
     /**
      * @dev See {IERC721-ownerOf}.
      */
-    function ownerOf(uint256 tokenId) public view virtual returns (address) {
-        address _owner = _owners[tokenId];
+    function smartAssetIdOwnerOf(uint256 _smartAssetId)
+        public
+        view
+        virtual
+        returns (address)
+    {
+        address _owner = _smartAssetIdOwners[_smartAssetId];
         require(_owner != address(0), "MetaBet: invalid token ID");
         return _owner;
     }
 
-    function _exists(uint256 tokenId) internal view virtual returns (bool) {
-        return _owners[tokenId] != address(0);
+    function _exists(uint256 _smartAssetId)
+        internal
+        view
+        virtual
+        returns (bool)
+    {
+        return _smartAssetIdOwners[_smartAssetId] != address(0);
     }
 
     /**
      * ownerMatchesBets
      */
     function ownerMatchesBets() public view virtual returns (uint256[] memory) {
-        return matchesBetted[msg.sender];
+        return matchesBetted[_msgSender()];
     }
 
     function getEthBalance() public view virtual returns (uint256) {
@@ -1140,10 +922,10 @@ contract MetaBet is MetaBetDomain {
         for (uint8 i = 0; i < tokens.length; i++) {
             uint256 balance = IERC20(tokens[i]).balanceOf(address(this));
             if (balance > 0) {
-                require(IERC20(tokens[i]).transfer(msg.sender, balance));
+                require(IERC20(tokens[i]).transfer(_msgSender(), balance));
                 console.log(
                     "owner['%s'] withdrawToken: '%s',balance: '%s'",
-                    msg.sender,
+                    _msgSender(),
                     tokens[i],
                     balance
                 );
@@ -1153,102 +935,100 @@ contract MetaBet is MetaBetDomain {
         if (smartBalance > 0) {
             require(!retryAttach, "this contract attack !!");
             retryAttach = true;
-            payable(msg.sender).transfer(smartBalance);
+            payable(_msgSender()).transfer(smartBalance);
             retryAttach = false;
             console.log(
                 "owner['%s'] withdrawToken eth balance: '%s'",
-                msg.sender,
+                _msgSender(),
                 smartBalance
             );
         }
     }
 
-    /**
-    添加新币种
-     */
-    function addToken(address token) internal {
-        if (token != address(0) && supportTokens[token] != true) {
-            supportTokens[token] = true;
-            tokens.push(token);
-        }
+    function grantOperator(address account) public onlyOwner {
+        addSigner(account, Role.OPERATOR);
     }
 
-    function isSigner(address account) public view returns (bool) {
-        return has(account);
+    function revokeOperator(address account) public onlyOwner {
+        removeSigner(account, Role.OPERATOR);
+    }
+
+    function isSigner(address account, Role role) public view returns (bool) {
+        return has(account, role);
     }
 
     /**
      * @dev Give an account access to this role.
      */
-    function addSigner(address account) internal {
-        require(!has(account), "Roles: account already has role");
-        _signers[account] = true;
+    function addSigner(address account, Role role) internal {
+        require(!has(account, role), "Roles: account already has role");
+        if (role == Role.OPERATOR) {
+            _operators[account] = true;
+        } else {
+            _signers[account] = true;
+        }
     }
 
     /**
      * @dev Remove an account's access to this role.
      */
-    function removeSigner(address account) internal {
-        require(has(account), "Roles: account does not have role");
-        _signers[account] = false;
+    function removeSigner(address account, Role role) internal {
+        require(has(account, role), "Roles: account does not have role");
+
+        if (role == Role.OPERATOR) {
+            _operators[account] = false;
+        } else {
+            _signers[account] = false;
+        }
     }
 
     /**
      * @dev Check if an account has this role.
      * @return bool
      */
-    function has(address account) internal view returns (bool) {
+    function has(address account, Role role) internal view returns (bool) {
         require(account != address(0), "Roles: account is the zero address");
-        return _signers[account];
+
+        // ADMIN,
+        // CREATOR,
+        // OPERATOR
+        return role == Role.OPERATOR ? _operators[account] : _signers[account];
     }
 
-    /* Allow owner to get the data of stored games */
-    function getData() public onlyOwner {
-        // for(uint i = 0; i < numGames; i++){
-        //     string memory id = string(abi.encodePacked(gameIds[i]));
-        //Get home team
-        // Chainlink.Request memory reqHome = buildChainlinkRequest(BYTES_JOB,
-        //     address(this), this.storeHomeData.selector);
-        // reqHome.add("get", string(abi.encodePacked(
-        //         "https://www.balldontlie.io/api/v1/games/", id)));
-        // reqHome.add("path", "home_team.full_name");
-        // sendChainlinkRequestTo(ORACLE_ADDRESS, reqHome, LINK_PAYMENT);
-        // homeTeam[gameIds[i]] = tempHomeTeam;
-        //Get visitor team
-        // Chainlink.Request memory reqVisitor = buildChainlinkRequest(
-        //     BYTES_JOB, address(this), this.storeVisitorData.selector);
-        // reqVisitor.add("get", string(abi.encodePacked(
-        //         "https://www.balldontlie.io/api/v1/games/", id)));
-        // reqVisitor.add("path", "visitor_team.full_name");
-        // sendChainlinkRequestTo(ORACLE_ADDRESS, reqVisitor, LINK_PAYMENT);
-        // visitorTeam[gameIds[i]] = tempVisitorTeam;
-        // //Get game date
-        // Chainlink.Request memory reqDate = buildChainlinkRequest(BYTES_JOB,
-        //     address(this), this.storeDateData.selector);
-        // reqDate.add("get", string(abi.encodePacked(
-        //         "https://www.balldontlie.io/api/v1/games/", id)));
-        // reqDate.add("path", "date");
-        // sendChainlinkRequestTo(ORACLE_ADDRESS, reqDate, LINK_PAYMENT);
-        // gameDate[gameIds[i]] = tempGameDate;
-        //Get game status
-        // Chainlink.Request memory reqStatus = buildChainlinkRequest(
-        //     BYTES_JOB,
-        //     address(this),
-        //     this.storeStatusData.selector
-        // );
-        // reqStatus.add(
-        //     "get",
-        //     string(
-        //         abi.encodePacked(
-        //             "https://api-football-v1.p.rapidapi.com/v2/fixtures/id/157508",
-        //             id
-        //         )
-        //     )
-        // );
-        // reqStatus.add("path", "status");
-        // sendChainlinkRequestTo(ORACLE_ADDRESS, reqStatus, LINK_PAYMENT);
-        // gameStatus[gameIds[i]] = tempGameStatus;
-        // }
+    /**
+     * @dev apiMatchId
+     * @return uint256
+     */
+    function apiMatchId(uint256 _fixtureId)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        return apiMatches[_fixtureId];
+    }
+
+    /**
+     * @dev countMatchs
+     * @return uint256
+     */
+    function countMatchs() public view virtual override returns (uint256) {
+        return matchIds.current();
+    }
+
+    /**
+     * @dev currentMatchId
+     * @return uint256
+     */
+    function matchResultLink(uint256 _matchId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        return matches[_matchId].matchResultLink;
     }
 
     receive() external payable {}

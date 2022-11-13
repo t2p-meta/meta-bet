@@ -13,10 +13,18 @@ const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 describe("Metabet-test===>>>>", function () {
   let accounts;
   let metabet;
+  let metabetmatch;
   let metatoken;
   let owner;
   let _leagueId = 1;
   let _matchId = 1;
+  
+  
+  // address _erc20Token,
+  // address _link,
+  // address _oracle
+  let _linkToken = '0x326C977E6efc84E512bB9C30f76E30c160eD06FB';
+  let _oracle = '0x40193c8518BB267228Fc409a613bDbD8eC5a97b3';
 
   before(async function () {
     accounts = await ethers.getSigners();
@@ -73,6 +81,17 @@ describe("Metabet-test===>>>>", function () {
     console.log("Deployment metabet:............:", metabet.address);
   });
 
+    /**
+   * 1.部署Metabet合约
+   */
+     it("Deployment MetabetMatch", async function () {
+      const _bet = await ethers.getContractFactory("MetaBetMatch");
+      metabetmatch = await _bet.deploy(metabet.address,_linkToken,_oracle);
+      // metaBetAddress = metabet.address;
+      console.log("Deployment metabetmatch:............:", metabetmatch.address);
+    });
+
+    
   /**
    * 2. 创建世界杯比赛League
    */
@@ -402,6 +421,14 @@ describe("Metabet-test===>>>>", function () {
       gasLimit: BigNumber.from("8000000"),
     });
     console.log(metabetret, "getMatchSmartAssetInfo");
+  });
+
+  it("owner requestSchedule", async function () {
+  
+    let metabetret = await metabetmatch.requestSchedule({
+      gasLimit: BigNumber.from("8000000"),
+    });
+    console.log(metabetret, "metabetret");
   });
 
   async function placeBet(type) {
