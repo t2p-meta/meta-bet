@@ -1,0 +1,3671 @@
+{
+  "contractName": "MetaBetDomain",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/MetaBetDomain.sol\":\"MetaBetDomain\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/MetaBetDomain.sol\":{\"keccak256\":\"0x338a22c7617ee68fa1d23b7f00e83056dfae7584f3476755a61c35f0669bf6cd\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a1c03575be5a132a505ad5cfad133ba7aee4972ae790fd64f14e7e8150485fa4\",\"dweb:/ipfs/QmWW5efj4kG4w23ZjLR7Rbu6WfSGYaoHCtWuJz6PG9CF1n\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212209d65784eb194fa0593a43c8d0b658d7fc7fbeccec249a4bd89cea807f13c0ebc64736f6c63430008110033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212209d65784eb194fa0593a43c8d0b658d7fc7fbeccec249a4bd89cea807f13c0ebc64736f6c63430008110033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "91:3972:27:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "91:3972:27:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\npragma experimental ABIEncoderV2;\n\ncontract MetaBetDomain {\n    enum AssetType {\n        ETH,\n        ERC20,\n        ERC1155,\n        ERC721,\n        ERC721Deprecated\n    }\n\n    enum MatchResult {\n        NOT_DETERMINED,\n        DRAW,\n        TEAM_A_WON,\n        TEAM_B_WON\n    }\n    enum MatchState {\n        NOT_STARTED,\n        STARTED,\n        FINISHED\n    }\n\n    uint8 private constant TEAM_A = 1;\n    uint8 private constant TEAM_B = 2;\n\n    /**\n    体育运动联赛\n     */\n    struct League {\n        // 创建者\n        address creator;\n        // 联赛名称\n        string name;\n        // 国家\n        string country;\n        // 联赛logo\n        string logo;\n        // 标志（是否结束：默认flase）\n        bool flag;\n    }\n\n    /**\n        第一次：createMatch\n        第二次：chainLink获取比赛结果后更新\n     */\n    struct Match {\n        // 创建者\n        address creator;\n        // league编号\n        uint256 leagueId;\n        // 获取比赛结果链接\n        string matchResultLink;\n        uint256 totalPayoutTeamA;\n        uint256 totalPayoutTeamB;\n        uint256 totalPayoutDraw;\n        //totalCollected; 每取一笔更新对账结果\n        uint256 totalWithDraw;\n        // 比赛项目是否存在\n        bool exists;\n        // raw名称(非team队，默认draw)\n        uint8 scoreDraw;\n        // A队得分 A 5\n        uint8 scoreTeamA;\n        // B队得分 scoreB 1\n        uint8 scoreTeamB;\n        // 最终赢率（含本金） finalOdds\n        uint256 finalOdds;\n        // 下注Id （最终下注ID）（chainlink取值后查询下注ID）\n        uint256 finalAssetId;\n        // 比赛信息\n        MatchInfo matchInfo;\n        // 比赛结果\n        MatchResult result;\n        // 押注赛程状态\n        MatchState state;\n    }\n\n    // Match base Info\n    struct MatchInfo {\n        // draw名称(非team队，默认draw)\n        string drawName;\n        // teamA队名称\n        string teamAName;\n        // teamB队名称\n        string teamBName;\n        // 赢家手续费率 8% winnerfeerate (让玩家自己设置)\n        uint256 winnerFeeRate;\n        // 比赛开始时间\n        uint256 startAt;\n        // 押注资产类型\n        AssetType assetType;\n        // USDC和USDT不写这里，写在公共变量里面，新增发的币可以写在这里\n        address payToken;\n        uint256 initOddsTeamA;\n        uint256 initOddsTeamB;\n        uint256 initOddsDraw;\n    }\n\n    /**\n    用户押注表\n     */\n    struct SmartAsset {\n        // 押注者\n        address owner;\n        // league编号\n        uint256 leagueId;\n        // 赛程ID\n        uint256 matchId;\n        // 押注 哪一方\n        MatchResult matchResult;\n        // 押注资产信息\n        PayAsset betInfo;\n        // 实时押注金额信息\n        RealTimeAmount realTimeAmount;\n        // 累计利息\n        uint8 accruedInterest;\n        // bet_timestamp :下注时间\n        uint256 betTimestamp;\n        // 手续费金额\n        uint256 feesAmount;\n        // withdraw_到手提款金额\n        uint256 withdrawAmount;\n        // withdraw_timestamp提取时间\n        uint256 withdrawTimestamp;\n        // 押注team队名称\n        string betTeamName;\n    }\n\n    /**\n    用户押注详情信息\n     */\n    struct MatchSmartAssetInfo {\n        SmartAsset smartAssetInfo;\n        Match matchDetail;\n    }\n\n    /**\n     *押注资产信息\n     */\n    struct PayAsset {\n        // 押注资产类型 ETH 或ERC20 实付币种\n        AssetType assetType;\n        // USDC\n        address payToken;\n        // 押注金额\n        uint256 payAmount;\n    }\n\n    /**\n    实时押注金额信息\n     */\n    struct RealTimeAmount {\n        // 实时押注时间节点累计总金额：A\n        uint256 totalPayoutTeamA;\n        // 实时押注时间节点累计总金额：B\n        uint256 totalPayoutTeamB;\n        // 实时押注时间节点累计总金额：O\n        uint256 totalPayoutDraw;\n    }\n}\n",
+  "sourcePath": "D:\\CSDN\\github\\SmartBet\\contracts\\MetaBetDomain.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/MetaBetDomain.sol",
+    "exportedSymbols": {
+      "MetaBetDomain": [
+        6996
+      ]
+    },
+    "id": 6997,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 6854,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:27"
+      },
+      {
+        "id": 6855,
+        "literals": [
+          "experimental",
+          "ABIEncoderV2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "56:33:27"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "MetaBetDomain",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 6996,
+        "linearizedBaseContracts": [
+          6996
+        ],
+        "name": "MetaBetDomain",
+        "nameLocation": "100:13:27",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "MetaBetDomain.AssetType",
+            "id": 6861,
+            "members": [
+              {
+                "id": 6856,
+                "name": "ETH",
+                "nameLocation": "145:3:27",
+                "nodeType": "EnumValue",
+                "src": "145:3:27"
+              },
+              {
+                "id": 6857,
+                "name": "ERC20",
+                "nameLocation": "158:5:27",
+                "nodeType": "EnumValue",
+                "src": "158:5:27"
+              },
+              {
+                "id": 6858,
+                "name": "ERC1155",
+                "nameLocation": "173:7:27",
+                "nodeType": "EnumValue",
+                "src": "173:7:27"
+              },
+              {
+                "id": 6859,
+                "name": "ERC721",
+                "nameLocation": "190:6:27",
+                "nodeType": "EnumValue",
+                "src": "190:6:27"
+              },
+              {
+                "id": 6860,
+                "name": "ERC721Deprecated",
+                "nameLocation": "206:16:27",
+                "nodeType": "EnumValue",
+                "src": "206:16:27"
+              }
+            ],
+            "name": "AssetType",
+            "nameLocation": "125:9:27",
+            "nodeType": "EnumDefinition",
+            "src": "120:108:27"
+          },
+          {
+            "canonicalName": "MetaBetDomain.MatchResult",
+            "id": 6866,
+            "members": [
+              {
+                "id": 6862,
+                "name": "NOT_DETERMINED",
+                "nameLocation": "261:14:27",
+                "nodeType": "EnumValue",
+                "src": "261:14:27"
+              },
+              {
+                "id": 6863,
+                "name": "DRAW",
+                "nameLocation": "285:4:27",
+                "nodeType": "EnumValue",
+                "src": "285:4:27"
+              },
+              {
+                "id": 6864,
+                "name": "TEAM_A_WON",
+                "nameLocation": "299:10:27",
+                "nodeType": "EnumValue",
+                "src": "299:10:27"
+              },
+              {
+                "id": 6865,
+                "name": "TEAM_B_WON",
+                "nameLocation": "319:10:27",
+                "nodeType": "EnumValue",
+                "src": "319:10:27"
+              }
+            ],
+            "name": "MatchResult",
+            "nameLocation": "239:11:27",
+            "nodeType": "EnumDefinition",
+            "src": "234:101:27"
+          },
+          {
+            "canonicalName": "MetaBetDomain.MatchState",
+            "id": 6870,
+            "members": [
+              {
+                "id": 6867,
+                "name": "NOT_STARTED",
+                "nameLocation": "366:11:27",
+                "nodeType": "EnumValue",
+                "src": "366:11:27"
+              },
+              {
+                "id": 6868,
+                "name": "STARTED",
+                "nameLocation": "387:7:27",
+                "nodeType": "EnumValue",
+                "src": "387:7:27"
+              },
+              {
+                "id": 6869,
+                "name": "FINISHED",
+                "nameLocation": "404:8:27",
+                "nodeType": "EnumValue",
+                "src": "404:8:27"
+              }
+            ],
+            "name": "MatchState",
+            "nameLocation": "345:10:27",
+            "nodeType": "EnumDefinition",
+            "src": "340:78:27"
+          },
+          {
+            "constant": true,
+            "id": 6873,
+            "mutability": "constant",
+            "name": "TEAM_A",
+            "nameLocation": "447:6:27",
+            "nodeType": "VariableDeclaration",
+            "scope": 6996,
+            "src": "424:33:27",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint8",
+              "typeString": "uint8"
+            },
+            "typeName": {
+              "id": 6871,
+              "name": "uint8",
+              "nodeType": "ElementaryTypeName",
+              "src": "424:5:27",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint8",
+                "typeString": "uint8"
+              }
+            },
+            "value": {
+              "hexValue": "31",
+              "id": 6872,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "456:1:27",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_1_by_1",
+                "typeString": "int_const 1"
+              },
+              "value": "1"
+            },
+            "visibility": "private"
+          },
+          {
+            "constant": true,
+            "id": 6876,
+            "mutability": "constant",
+            "name": "TEAM_B",
+            "nameLocation": "486:6:27",
+            "nodeType": "VariableDeclaration",
+            "scope": 6996,
+            "src": "463:33:27",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint8",
+              "typeString": "uint8"
+            },
+            "typeName": {
+              "id": 6874,
+              "name": "uint8",
+              "nodeType": "ElementaryTypeName",
+              "src": "463:5:27",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint8",
+                "typeString": "uint8"
+              }
+            },
+            "value": {
+              "hexValue": "32",
+              "id": 6875,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "495:1:27",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_2_by_1",
+                "typeString": "int_const 2"
+              },
+              "value": "2"
+            },
+            "visibility": "private"
+          },
+          {
+            "canonicalName": "MetaBetDomain.League",
+            "id": 6887,
+            "members": [
+              {
+                "constant": false,
+                "id": 6878,
+                "mutability": "mutable",
+                "name": "creator",
+                "nameLocation": "595:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "587:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6877,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "587:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6880,
+                "mutability": "mutable",
+                "name": "name",
+                "nameLocation": "643:4:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "636:11:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6879,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "636:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6882,
+                "mutability": "mutable",
+                "name": "country",
+                "nameLocation": "682:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "675:14:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6881,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "675:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6884,
+                "mutability": "mutable",
+                "name": "logo",
+                "nameLocation": "728:4:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "721:11:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6883,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "721:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6886,
+                "mutability": "mutable",
+                "name": "flag",
+                "nameLocation": "797:4:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "792:9:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 6885,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "792:4:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "League",
+            "nameLocation": "549:6:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "542:266:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.Match",
+            "id": 6923,
+            "members": [
+              {
+                "constant": false,
+                "id": 6889,
+                "mutability": "mutable",
+                "name": "creator",
+                "nameLocation": "971:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "963:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6888,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "963:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6891,
+                "mutability": "mutable",
+                "name": "leagueId",
+                "nameLocation": "1020:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1012:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6890,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1012:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6893,
+                "mutability": "mutable",
+                "name": "matchResultLink",
+                "nameLocation": "1081:15:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1074:22:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6892,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1074:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6895,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamA",
+                "nameLocation": "1114:16:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1106:24:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6894,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1106:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6897,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamB",
+                "nameLocation": "1148:16:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1140:24:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6896,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1140:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6899,
+                "mutability": "mutable",
+                "name": "totalPayoutDraw",
+                "nameLocation": "1182:15:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1174:23:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6898,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1174:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6901,
+                "mutability": "mutable",
+                "name": "totalWithDraw",
+                "nameLocation": "1272:13:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1264:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6900,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1264:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6903,
+                "mutability": "mutable",
+                "name": "exists",
+                "nameLocation": "1336:6:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1331:11:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 6902,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1331:4:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6905,
+                "mutability": "mutable",
+                "name": "scoreDraw",
+                "nameLocation": "1404:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1398:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 6904,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1398:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6907,
+                "mutability": "mutable",
+                "name": "scoreTeamA",
+                "nameLocation": "1455:10:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1449:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 6906,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1449:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6909,
+                "mutability": "mutable",
+                "name": "scoreTeamB",
+                "nameLocation": "1512:10:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1506:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 6908,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1506:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6911,
+                "mutability": "mutable",
+                "name": "finalOdds",
+                "nameLocation": "1589:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1581:17:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6910,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1581:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6913,
+                "mutability": "mutable",
+                "name": "finalAssetId",
+                "nameLocation": "1695:12:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1687:20:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6912,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1687:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6916,
+                "mutability": "mutable",
+                "name": "matchInfo",
+                "nameLocation": "1751:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1741:19:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_MatchInfo_$6945_storage_ptr",
+                  "typeString": "struct MetaBetDomain.MatchInfo"
+                },
+                "typeName": {
+                  "id": 6915,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6914,
+                    "name": "MatchInfo",
+                    "nameLocations": [
+                      "1741:9:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6945,
+                    "src": "1741:9:27"
+                  },
+                  "referencedDeclaration": 6945,
+                  "src": "1741:9:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_MatchInfo_$6945_storage_ptr",
+                    "typeString": "struct MetaBetDomain.MatchInfo"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6919,
+                "mutability": "mutable",
+                "name": "result",
+                "nameLocation": "1806:6:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1794:18:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchResult_$6866",
+                  "typeString": "enum MetaBetDomain.MatchResult"
+                },
+                "typeName": {
+                  "id": 6918,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6917,
+                    "name": "MatchResult",
+                    "nameLocations": [
+                      "1794:11:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6866,
+                    "src": "1794:11:27"
+                  },
+                  "referencedDeclaration": 6866,
+                  "src": "1794:11:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchResult_$6866",
+                    "typeString": "enum MetaBetDomain.MatchResult"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6922,
+                "mutability": "mutable",
+                "name": "state",
+                "nameLocation": "1863:5:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1852:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchState_$6870",
+                  "typeString": "enum MetaBetDomain.MatchState"
+                },
+                "typeName": {
+                  "id": 6921,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6920,
+                    "name": "MatchState",
+                    "nameLocations": [
+                      "1852:10:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6870,
+                    "src": "1852:10:27"
+                  },
+                  "referencedDeclaration": 6870,
+                  "src": "1852:10:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchState_$6870",
+                    "typeString": "enum MetaBetDomain.MatchState"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Match",
+            "nameLocation": "926:5:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "919:956:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.MatchInfo",
+            "id": 6945,
+            "members": [
+              {
+                "constant": false,
+                "id": 6925,
+                "mutability": "mutable",
+                "name": "drawName",
+                "nameLocation": "1985:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "1978:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6924,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1978:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6927,
+                "mutability": "mutable",
+                "name": "teamAName",
+                "nameLocation": "2036:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2029:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6926,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2029:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6929,
+                "mutability": "mutable",
+                "name": "teamBName",
+                "nameLocation": "2088:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2081:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6928,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2081:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6931,
+                "mutability": "mutable",
+                "name": "winnerFeeRate",
+                "nameLocation": "2186:13:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2178:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6930,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2178:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6933,
+                "mutability": "mutable",
+                "name": "startAt",
+                "nameLocation": "2247:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2239:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6932,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2239:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6936,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "2304:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2294:19:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$6861",
+                  "typeString": "enum MetaBetDomain.AssetType"
+                },
+                "typeName": {
+                  "id": 6935,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6934,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "2294:9:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6861,
+                    "src": "2294:9:27"
+                  },
+                  "referencedDeclaration": 6861,
+                  "src": "2294:9:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$6861",
+                    "typeString": "enum MetaBetDomain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6938,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "2429:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2421:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6937,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2421:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6940,
+                "mutability": "mutable",
+                "name": "initOddsTeamA",
+                "nameLocation": "2455:13:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2447:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6939,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2447:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6942,
+                "mutability": "mutable",
+                "name": "initOddsTeamB",
+                "nameLocation": "2486:13:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2478:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6941,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2478:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6944,
+                "mutability": "mutable",
+                "name": "initOddsDraw",
+                "nameLocation": "2517:12:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2509:20:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6943,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2509:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "MatchInfo",
+            "nameLocation": "1911:9:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "1904:632:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.SmartAsset",
+            "id": 6973,
+            "members": [
+              {
+                "constant": false,
+                "id": 6947,
+                "mutability": "mutable",
+                "name": "owner",
+                "nameLocation": "2635:5:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2627:13:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6946,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2627:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6949,
+                "mutability": "mutable",
+                "name": "leagueId",
+                "nameLocation": "2682:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2674:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6948,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2674:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6951,
+                "mutability": "mutable",
+                "name": "matchId",
+                "nameLocation": "2728:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2720:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6950,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2720:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6954,
+                "mutability": "mutable",
+                "name": "matchResult",
+                "nameLocation": "2785:11:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2773:23:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchResult_$6866",
+                  "typeString": "enum MetaBetDomain.MatchResult"
+                },
+                "typeName": {
+                  "id": 6953,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6952,
+                    "name": "MatchResult",
+                    "nameLocations": [
+                      "2773:11:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6866,
+                    "src": "2773:11:27"
+                  },
+                  "referencedDeclaration": 6866,
+                  "src": "2773:11:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchResult_$6866",
+                    "typeString": "enum MetaBetDomain.MatchResult"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6957,
+                "mutability": "mutable",
+                "name": "betInfo",
+                "nameLocation": "2845:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2836:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_PayAsset_$6988_storage_ptr",
+                  "typeString": "struct MetaBetDomain.PayAsset"
+                },
+                "typeName": {
+                  "id": 6956,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6955,
+                    "name": "PayAsset",
+                    "nameLocations": [
+                      "2836:8:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6988,
+                    "src": "2836:8:27"
+                  },
+                  "referencedDeclaration": 6988,
+                  "src": "2836:8:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_PayAsset_$6988_storage_ptr",
+                    "typeString": "struct MetaBetDomain.PayAsset"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6960,
+                "mutability": "mutable",
+                "name": "realTimeAmount",
+                "nameLocation": "2913:14:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2898:29:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_RealTimeAmount_$6995_storage_ptr",
+                  "typeString": "struct MetaBetDomain.RealTimeAmount"
+                },
+                "typeName": {
+                  "id": 6959,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6958,
+                    "name": "RealTimeAmount",
+                    "nameLocations": [
+                      "2898:14:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6995,
+                    "src": "2898:14:27"
+                  },
+                  "referencedDeclaration": 6995,
+                  "src": "2898:14:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_RealTimeAmount_$6995_storage_ptr",
+                    "typeString": "struct MetaBetDomain.RealTimeAmount"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6962,
+                "mutability": "mutable",
+                "name": "accruedInterest",
+                "nameLocation": "2967:15:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2961:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 6961,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2961:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6964,
+                "mutability": "mutable",
+                "name": "betTimestamp",
+                "nameLocation": "3039:12:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3031:20:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6963,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3031:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6966,
+                "mutability": "mutable",
+                "name": "feesAmount",
+                "nameLocation": "3096:10:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3088:18:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6965,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3088:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6968,
+                "mutability": "mutable",
+                "name": "withdrawAmount",
+                "nameLocation": "3163:14:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3155:22:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6967,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3155:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6970,
+                "mutability": "mutable",
+                "name": "withdrawTimestamp",
+                "nameLocation": "3237:17:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3229:25:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6969,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3229:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6972,
+                "mutability": "mutable",
+                "name": "betTeamName",
+                "nameLocation": "3302:11:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3295:18:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6971,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3295:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SmartAsset",
+            "nameLocation": "2585:10:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "2578:742:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.MatchSmartAssetInfo",
+            "id": 6980,
+            "members": [
+              {
+                "constant": false,
+                "id": 6976,
+                "mutability": "mutable",
+                "name": "smartAssetInfo",
+                "nameLocation": "3419:14:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6980,
+                "src": "3408:25:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_SmartAsset_$6973_storage_ptr",
+                  "typeString": "struct MetaBetDomain.SmartAsset"
+                },
+                "typeName": {
+                  "id": 6975,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6974,
+                    "name": "SmartAsset",
+                    "nameLocations": [
+                      "3408:10:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6973,
+                    "src": "3408:10:27"
+                  },
+                  "referencedDeclaration": 6973,
+                  "src": "3408:10:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SmartAsset_$6973_storage_ptr",
+                    "typeString": "struct MetaBetDomain.SmartAsset"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6979,
+                "mutability": "mutable",
+                "name": "matchDetail",
+                "nameLocation": "3449:11:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6980,
+                "src": "3443:17:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_Match_$6923_storage_ptr",
+                  "typeString": "struct MetaBetDomain.Match"
+                },
+                "typeName": {
+                  "id": 6978,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6977,
+                    "name": "Match",
+                    "nameLocations": [
+                      "3443:5:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6923,
+                    "src": "3443:5:27"
+                  },
+                  "referencedDeclaration": 6923,
+                  "src": "3443:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Match_$6923_storage_ptr",
+                    "typeString": "struct MetaBetDomain.Match"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "MatchSmartAssetInfo",
+            "nameLocation": "3378:19:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "3371:96:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.PayAsset",
+            "id": 6988,
+            "members": [
+              {
+                "constant": false,
+                "id": 6983,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "3606:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6988,
+                "src": "3596:19:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$6861",
+                  "typeString": "enum MetaBetDomain.AssetType"
+                },
+                "typeName": {
+                  "id": 6982,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6981,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "3596:9:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6861,
+                    "src": "3596:9:27"
+                  },
+                  "referencedDeclaration": 6861,
+                  "src": "3596:9:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$6861",
+                    "typeString": "enum MetaBetDomain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6985,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "3649:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6988,
+                "src": "3641:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6984,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3641:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6987,
+                "mutability": "mutable",
+                "name": "payAmount",
+                "nameLocation": "3699:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6988,
+                "src": "3691:17:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6986,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3691:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "PayAsset",
+            "nameLocation": "3521:8:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "3514:201:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.RealTimeAmount",
+            "id": 6995,
+            "members": [
+              {
+                "constant": false,
+                "id": 6990,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamA",
+                "nameLocation": "3861:16:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6995,
+                "src": "3853:24:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6989,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3853:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6992,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamB",
+                "nameLocation": "3950:16:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6995,
+                "src": "3942:24:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6991,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3942:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6994,
+                "mutability": "mutable",
+                "name": "totalPayoutDraw",
+                "nameLocation": "4039:15:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6995,
+                "src": "4031:23:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6993,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "4031:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "RealTimeAmount",
+            "nameLocation": "3773:14:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "3766:295:27",
+            "visibility": "public"
+          }
+        ],
+        "scope": 6997,
+        "src": "91:3972:27",
+        "usedErrors": []
+      }
+    ],
+    "src": "32:4032:27"
+  },
+  "legacyAST": {
+    "absolutePath": "project:/contracts/MetaBetDomain.sol",
+    "exportedSymbols": {
+      "MetaBetDomain": [
+        6996
+      ]
+    },
+    "id": 6997,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 6854,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:27"
+      },
+      {
+        "id": 6855,
+        "literals": [
+          "experimental",
+          "ABIEncoderV2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "56:33:27"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "MetaBetDomain",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 6996,
+        "linearizedBaseContracts": [
+          6996
+        ],
+        "name": "MetaBetDomain",
+        "nameLocation": "100:13:27",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "MetaBetDomain.AssetType",
+            "id": 6861,
+            "members": [
+              {
+                "id": 6856,
+                "name": "ETH",
+                "nameLocation": "145:3:27",
+                "nodeType": "EnumValue",
+                "src": "145:3:27"
+              },
+              {
+                "id": 6857,
+                "name": "ERC20",
+                "nameLocation": "158:5:27",
+                "nodeType": "EnumValue",
+                "src": "158:5:27"
+              },
+              {
+                "id": 6858,
+                "name": "ERC1155",
+                "nameLocation": "173:7:27",
+                "nodeType": "EnumValue",
+                "src": "173:7:27"
+              },
+              {
+                "id": 6859,
+                "name": "ERC721",
+                "nameLocation": "190:6:27",
+                "nodeType": "EnumValue",
+                "src": "190:6:27"
+              },
+              {
+                "id": 6860,
+                "name": "ERC721Deprecated",
+                "nameLocation": "206:16:27",
+                "nodeType": "EnumValue",
+                "src": "206:16:27"
+              }
+            ],
+            "name": "AssetType",
+            "nameLocation": "125:9:27",
+            "nodeType": "EnumDefinition",
+            "src": "120:108:27"
+          },
+          {
+            "canonicalName": "MetaBetDomain.MatchResult",
+            "id": 6866,
+            "members": [
+              {
+                "id": 6862,
+                "name": "NOT_DETERMINED",
+                "nameLocation": "261:14:27",
+                "nodeType": "EnumValue",
+                "src": "261:14:27"
+              },
+              {
+                "id": 6863,
+                "name": "DRAW",
+                "nameLocation": "285:4:27",
+                "nodeType": "EnumValue",
+                "src": "285:4:27"
+              },
+              {
+                "id": 6864,
+                "name": "TEAM_A_WON",
+                "nameLocation": "299:10:27",
+                "nodeType": "EnumValue",
+                "src": "299:10:27"
+              },
+              {
+                "id": 6865,
+                "name": "TEAM_B_WON",
+                "nameLocation": "319:10:27",
+                "nodeType": "EnumValue",
+                "src": "319:10:27"
+              }
+            ],
+            "name": "MatchResult",
+            "nameLocation": "239:11:27",
+            "nodeType": "EnumDefinition",
+            "src": "234:101:27"
+          },
+          {
+            "canonicalName": "MetaBetDomain.MatchState",
+            "id": 6870,
+            "members": [
+              {
+                "id": 6867,
+                "name": "NOT_STARTED",
+                "nameLocation": "366:11:27",
+                "nodeType": "EnumValue",
+                "src": "366:11:27"
+              },
+              {
+                "id": 6868,
+                "name": "STARTED",
+                "nameLocation": "387:7:27",
+                "nodeType": "EnumValue",
+                "src": "387:7:27"
+              },
+              {
+                "id": 6869,
+                "name": "FINISHED",
+                "nameLocation": "404:8:27",
+                "nodeType": "EnumValue",
+                "src": "404:8:27"
+              }
+            ],
+            "name": "MatchState",
+            "nameLocation": "345:10:27",
+            "nodeType": "EnumDefinition",
+            "src": "340:78:27"
+          },
+          {
+            "constant": true,
+            "id": 6873,
+            "mutability": "constant",
+            "name": "TEAM_A",
+            "nameLocation": "447:6:27",
+            "nodeType": "VariableDeclaration",
+            "scope": 6996,
+            "src": "424:33:27",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint8",
+              "typeString": "uint8"
+            },
+            "typeName": {
+              "id": 6871,
+              "name": "uint8",
+              "nodeType": "ElementaryTypeName",
+              "src": "424:5:27",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint8",
+                "typeString": "uint8"
+              }
+            },
+            "value": {
+              "hexValue": "31",
+              "id": 6872,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "456:1:27",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_1_by_1",
+                "typeString": "int_const 1"
+              },
+              "value": "1"
+            },
+            "visibility": "private"
+          },
+          {
+            "constant": true,
+            "id": 6876,
+            "mutability": "constant",
+            "name": "TEAM_B",
+            "nameLocation": "486:6:27",
+            "nodeType": "VariableDeclaration",
+            "scope": 6996,
+            "src": "463:33:27",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint8",
+              "typeString": "uint8"
+            },
+            "typeName": {
+              "id": 6874,
+              "name": "uint8",
+              "nodeType": "ElementaryTypeName",
+              "src": "463:5:27",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint8",
+                "typeString": "uint8"
+              }
+            },
+            "value": {
+              "hexValue": "32",
+              "id": 6875,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "495:1:27",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_2_by_1",
+                "typeString": "int_const 2"
+              },
+              "value": "2"
+            },
+            "visibility": "private"
+          },
+          {
+            "canonicalName": "MetaBetDomain.League",
+            "id": 6887,
+            "members": [
+              {
+                "constant": false,
+                "id": 6878,
+                "mutability": "mutable",
+                "name": "creator",
+                "nameLocation": "595:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "587:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6877,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "587:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6880,
+                "mutability": "mutable",
+                "name": "name",
+                "nameLocation": "643:4:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "636:11:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6879,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "636:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6882,
+                "mutability": "mutable",
+                "name": "country",
+                "nameLocation": "682:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "675:14:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6881,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "675:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6884,
+                "mutability": "mutable",
+                "name": "logo",
+                "nameLocation": "728:4:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "721:11:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6883,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "721:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6886,
+                "mutability": "mutable",
+                "name": "flag",
+                "nameLocation": "797:4:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6887,
+                "src": "792:9:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 6885,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "792:4:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "League",
+            "nameLocation": "549:6:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "542:266:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.Match",
+            "id": 6923,
+            "members": [
+              {
+                "constant": false,
+                "id": 6889,
+                "mutability": "mutable",
+                "name": "creator",
+                "nameLocation": "971:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "963:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6888,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "963:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6891,
+                "mutability": "mutable",
+                "name": "leagueId",
+                "nameLocation": "1020:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1012:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6890,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1012:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6893,
+                "mutability": "mutable",
+                "name": "matchResultLink",
+                "nameLocation": "1081:15:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1074:22:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6892,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1074:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6895,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamA",
+                "nameLocation": "1114:16:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1106:24:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6894,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1106:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6897,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamB",
+                "nameLocation": "1148:16:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1140:24:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6896,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1140:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6899,
+                "mutability": "mutable",
+                "name": "totalPayoutDraw",
+                "nameLocation": "1182:15:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1174:23:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6898,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1174:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6901,
+                "mutability": "mutable",
+                "name": "totalWithDraw",
+                "nameLocation": "1272:13:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1264:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6900,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1264:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6903,
+                "mutability": "mutable",
+                "name": "exists",
+                "nameLocation": "1336:6:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1331:11:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 6902,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1331:4:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6905,
+                "mutability": "mutable",
+                "name": "scoreDraw",
+                "nameLocation": "1404:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1398:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 6904,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1398:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6907,
+                "mutability": "mutable",
+                "name": "scoreTeamA",
+                "nameLocation": "1455:10:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1449:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 6906,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1449:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6909,
+                "mutability": "mutable",
+                "name": "scoreTeamB",
+                "nameLocation": "1512:10:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1506:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 6908,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1506:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6911,
+                "mutability": "mutable",
+                "name": "finalOdds",
+                "nameLocation": "1589:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1581:17:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6910,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1581:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6913,
+                "mutability": "mutable",
+                "name": "finalAssetId",
+                "nameLocation": "1695:12:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1687:20:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6912,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1687:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6916,
+                "mutability": "mutable",
+                "name": "matchInfo",
+                "nameLocation": "1751:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1741:19:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_MatchInfo_$6945_storage_ptr",
+                  "typeString": "struct MetaBetDomain.MatchInfo"
+                },
+                "typeName": {
+                  "id": 6915,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6914,
+                    "name": "MatchInfo",
+                    "nameLocations": [
+                      "1741:9:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6945,
+                    "src": "1741:9:27"
+                  },
+                  "referencedDeclaration": 6945,
+                  "src": "1741:9:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_MatchInfo_$6945_storage_ptr",
+                    "typeString": "struct MetaBetDomain.MatchInfo"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6919,
+                "mutability": "mutable",
+                "name": "result",
+                "nameLocation": "1806:6:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1794:18:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchResult_$6866",
+                  "typeString": "enum MetaBetDomain.MatchResult"
+                },
+                "typeName": {
+                  "id": 6918,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6917,
+                    "name": "MatchResult",
+                    "nameLocations": [
+                      "1794:11:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6866,
+                    "src": "1794:11:27"
+                  },
+                  "referencedDeclaration": 6866,
+                  "src": "1794:11:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchResult_$6866",
+                    "typeString": "enum MetaBetDomain.MatchResult"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6922,
+                "mutability": "mutable",
+                "name": "state",
+                "nameLocation": "1863:5:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6923,
+                "src": "1852:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchState_$6870",
+                  "typeString": "enum MetaBetDomain.MatchState"
+                },
+                "typeName": {
+                  "id": 6921,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6920,
+                    "name": "MatchState",
+                    "nameLocations": [
+                      "1852:10:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6870,
+                    "src": "1852:10:27"
+                  },
+                  "referencedDeclaration": 6870,
+                  "src": "1852:10:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchState_$6870",
+                    "typeString": "enum MetaBetDomain.MatchState"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Match",
+            "nameLocation": "926:5:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "919:956:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.MatchInfo",
+            "id": 6945,
+            "members": [
+              {
+                "constant": false,
+                "id": 6925,
+                "mutability": "mutable",
+                "name": "drawName",
+                "nameLocation": "1985:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "1978:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6924,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1978:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6927,
+                "mutability": "mutable",
+                "name": "teamAName",
+                "nameLocation": "2036:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2029:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6926,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2029:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6929,
+                "mutability": "mutable",
+                "name": "teamBName",
+                "nameLocation": "2088:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2081:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6928,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2081:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6931,
+                "mutability": "mutable",
+                "name": "winnerFeeRate",
+                "nameLocation": "2186:13:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2178:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6930,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2178:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6933,
+                "mutability": "mutable",
+                "name": "startAt",
+                "nameLocation": "2247:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2239:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6932,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2239:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6936,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "2304:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2294:19:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$6861",
+                  "typeString": "enum MetaBetDomain.AssetType"
+                },
+                "typeName": {
+                  "id": 6935,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6934,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "2294:9:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6861,
+                    "src": "2294:9:27"
+                  },
+                  "referencedDeclaration": 6861,
+                  "src": "2294:9:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$6861",
+                    "typeString": "enum MetaBetDomain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6938,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "2429:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2421:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6937,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2421:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6940,
+                "mutability": "mutable",
+                "name": "initOddsTeamA",
+                "nameLocation": "2455:13:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2447:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6939,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2447:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6942,
+                "mutability": "mutable",
+                "name": "initOddsTeamB",
+                "nameLocation": "2486:13:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2478:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6941,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2478:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6944,
+                "mutability": "mutable",
+                "name": "initOddsDraw",
+                "nameLocation": "2517:12:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6945,
+                "src": "2509:20:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6943,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2509:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "MatchInfo",
+            "nameLocation": "1911:9:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "1904:632:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.SmartAsset",
+            "id": 6973,
+            "members": [
+              {
+                "constant": false,
+                "id": 6947,
+                "mutability": "mutable",
+                "name": "owner",
+                "nameLocation": "2635:5:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2627:13:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6946,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2627:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6949,
+                "mutability": "mutable",
+                "name": "leagueId",
+                "nameLocation": "2682:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2674:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6948,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2674:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6951,
+                "mutability": "mutable",
+                "name": "matchId",
+                "nameLocation": "2728:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2720:15:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6950,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2720:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6954,
+                "mutability": "mutable",
+                "name": "matchResult",
+                "nameLocation": "2785:11:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2773:23:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchResult_$6866",
+                  "typeString": "enum MetaBetDomain.MatchResult"
+                },
+                "typeName": {
+                  "id": 6953,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6952,
+                    "name": "MatchResult",
+                    "nameLocations": [
+                      "2773:11:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6866,
+                    "src": "2773:11:27"
+                  },
+                  "referencedDeclaration": 6866,
+                  "src": "2773:11:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchResult_$6866",
+                    "typeString": "enum MetaBetDomain.MatchResult"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6957,
+                "mutability": "mutable",
+                "name": "betInfo",
+                "nameLocation": "2845:7:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2836:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_PayAsset_$6988_storage_ptr",
+                  "typeString": "struct MetaBetDomain.PayAsset"
+                },
+                "typeName": {
+                  "id": 6956,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6955,
+                    "name": "PayAsset",
+                    "nameLocations": [
+                      "2836:8:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6988,
+                    "src": "2836:8:27"
+                  },
+                  "referencedDeclaration": 6988,
+                  "src": "2836:8:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_PayAsset_$6988_storage_ptr",
+                    "typeString": "struct MetaBetDomain.PayAsset"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6960,
+                "mutability": "mutable",
+                "name": "realTimeAmount",
+                "nameLocation": "2913:14:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2898:29:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_RealTimeAmount_$6995_storage_ptr",
+                  "typeString": "struct MetaBetDomain.RealTimeAmount"
+                },
+                "typeName": {
+                  "id": 6959,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6958,
+                    "name": "RealTimeAmount",
+                    "nameLocations": [
+                      "2898:14:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6995,
+                    "src": "2898:14:27"
+                  },
+                  "referencedDeclaration": 6995,
+                  "src": "2898:14:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_RealTimeAmount_$6995_storage_ptr",
+                    "typeString": "struct MetaBetDomain.RealTimeAmount"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6962,
+                "mutability": "mutable",
+                "name": "accruedInterest",
+                "nameLocation": "2967:15:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "2961:21:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 6961,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2961:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6964,
+                "mutability": "mutable",
+                "name": "betTimestamp",
+                "nameLocation": "3039:12:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3031:20:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6963,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3031:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6966,
+                "mutability": "mutable",
+                "name": "feesAmount",
+                "nameLocation": "3096:10:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3088:18:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6965,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3088:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6968,
+                "mutability": "mutable",
+                "name": "withdrawAmount",
+                "nameLocation": "3163:14:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3155:22:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6967,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3155:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6970,
+                "mutability": "mutable",
+                "name": "withdrawTimestamp",
+                "nameLocation": "3237:17:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3229:25:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6969,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3229:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6972,
+                "mutability": "mutable",
+                "name": "betTeamName",
+                "nameLocation": "3302:11:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6973,
+                "src": "3295:18:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 6971,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3295:6:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SmartAsset",
+            "nameLocation": "2585:10:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "2578:742:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.MatchSmartAssetInfo",
+            "id": 6980,
+            "members": [
+              {
+                "constant": false,
+                "id": 6976,
+                "mutability": "mutable",
+                "name": "smartAssetInfo",
+                "nameLocation": "3419:14:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6980,
+                "src": "3408:25:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_SmartAsset_$6973_storage_ptr",
+                  "typeString": "struct MetaBetDomain.SmartAsset"
+                },
+                "typeName": {
+                  "id": 6975,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6974,
+                    "name": "SmartAsset",
+                    "nameLocations": [
+                      "3408:10:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6973,
+                    "src": "3408:10:27"
+                  },
+                  "referencedDeclaration": 6973,
+                  "src": "3408:10:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SmartAsset_$6973_storage_ptr",
+                    "typeString": "struct MetaBetDomain.SmartAsset"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6979,
+                "mutability": "mutable",
+                "name": "matchDetail",
+                "nameLocation": "3449:11:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6980,
+                "src": "3443:17:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_Match_$6923_storage_ptr",
+                  "typeString": "struct MetaBetDomain.Match"
+                },
+                "typeName": {
+                  "id": 6978,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6977,
+                    "name": "Match",
+                    "nameLocations": [
+                      "3443:5:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6923,
+                    "src": "3443:5:27"
+                  },
+                  "referencedDeclaration": 6923,
+                  "src": "3443:5:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Match_$6923_storage_ptr",
+                    "typeString": "struct MetaBetDomain.Match"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "MatchSmartAssetInfo",
+            "nameLocation": "3378:19:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "3371:96:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.PayAsset",
+            "id": 6988,
+            "members": [
+              {
+                "constant": false,
+                "id": 6983,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "3606:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6988,
+                "src": "3596:19:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$6861",
+                  "typeString": "enum MetaBetDomain.AssetType"
+                },
+                "typeName": {
+                  "id": 6982,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 6981,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "3596:9:27"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 6861,
+                    "src": "3596:9:27"
+                  },
+                  "referencedDeclaration": 6861,
+                  "src": "3596:9:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$6861",
+                    "typeString": "enum MetaBetDomain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6985,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "3649:8:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6988,
+                "src": "3641:16:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 6984,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3641:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6987,
+                "mutability": "mutable",
+                "name": "payAmount",
+                "nameLocation": "3699:9:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6988,
+                "src": "3691:17:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6986,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3691:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "PayAsset",
+            "nameLocation": "3521:8:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "3514:201:27",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetDomain.RealTimeAmount",
+            "id": 6995,
+            "members": [
+              {
+                "constant": false,
+                "id": 6990,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamA",
+                "nameLocation": "3861:16:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6995,
+                "src": "3853:24:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6989,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3853:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6992,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamB",
+                "nameLocation": "3950:16:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6995,
+                "src": "3942:24:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6991,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "3942:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 6994,
+                "mutability": "mutable",
+                "name": "totalPayoutDraw",
+                "nameLocation": "4039:15:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 6995,
+                "src": "4031:23:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 6993,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "4031:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "RealTimeAmount",
+            "nameLocation": "3773:14:27",
+            "nodeType": "StructDefinition",
+            "scope": 6996,
+            "src": "3766:295:27",
+            "visibility": "public"
+          }
+        ],
+        "scope": 6997,
+        "src": "91:3972:27",
+        "usedErrors": []
+      }
+    ],
+    "src": "32:4032:27"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.17+commit.8df45f5f.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.6",
+  "updatedAt": "2022-11-07T11:18:52.854Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

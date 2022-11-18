@@ -1,0 +1,1831 @@
+{
+    "api": {
+        "results": 48,
+        "fixtures": [
+            {
+                "fixture_id": 855736,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-21T00:00:00+08:00",
+                "event_timestamp": 1668960000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Bayt Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1569,
+                    "team_name": "Qatar",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1569.png"
+                },
+                "awayTeam": {
+                    "team_id": 2382,
+                    "team_name": "Ecuador",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2382.png"
+                },
+                "goalsHomeTeam": 2,
+                "goalsAwayTeam": 1,
+                "score": {
+                    "halftime": "1-0",
+                    "fulltime": "2-1",
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855735,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-21T21:00:00+08:00",
+                "event_timestamp": 1669035600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Khalifa International Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 10,
+                    "team_name": "England",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/10.png"
+                },
+                "awayTeam": {
+                    "team_id": 22,
+                    "team_name": "Iran",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/22.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855734,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-22T00:00:00+08:00",
+                "event_timestamp": 1669046400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Thumama Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 13,
+                    "team_name": "Senegal",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/13.png"
+                },
+                "awayTeam": {
+                    "team_id": 1118,
+                    "team_name": "Netherlands",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1118.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 866681,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-22T03:00:00+08:00",
+                "event_timestamp": 1669057200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Ahmad bin Ali Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 2384,
+                    "team_name": "USA",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2384.png"
+                },
+                "awayTeam": {
+                    "team_id": 767,
+                    "team_name": "Wales",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/767.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855737,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-22T18:00:00+08:00",
+                "event_timestamp": 1669111200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Lusail Iconic Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 26,
+                    "team_name": "Argentina",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/26.png"
+                },
+                "awayTeam": {
+                    "team_id": 23,
+                    "team_name": "Saudi Arabia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/23.png"
+                },
+                "goalsHomeTeam": 3,
+                "goalsAwayTeam": 4,
+                "score": {
+                    "halftime": "1-2",
+                    "fulltime": "3-4",
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855738,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-22T21:00:00+08:00",
+                "event_timestamp": 1669122000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Education City Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 21,
+                    "team_name": "Denmark",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/21.png"
+                },
+                "awayTeam": {
+                    "team_id": 28,
+                    "team_name": "Tunisia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/28.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855739,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-23T00:00:00+08:00",
+                "event_timestamp": 1669132800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Stadium 974",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 16,
+                    "team_name": "Mexico",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/16.png"
+                },
+                "awayTeam": {
+                    "team_id": 24,
+                    "team_name": "Poland",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/24.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 871850,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-23T03:00:00+08:00",
+                "event_timestamp": 1669143600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Janoub Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 2,
+                    "team_name": "France",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2.png"
+                },
+                "awayTeam": {
+                    "team_id": 20,
+                    "team_name": "Australia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/20.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855740,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-23T18:00:00+08:00",
+                "event_timestamp": 1669197600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Bayt Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 31,
+                    "team_name": "Morocco",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/31.png"
+                },
+                "awayTeam": {
+                    "team_id": 3,
+                    "team_name": "Croatia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/3.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855741,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-23T21:00:00+08:00",
+                "event_timestamp": 1669208400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Khalifa International Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 25,
+                    "team_name": "Germany",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/25.png"
+                },
+                "awayTeam": {
+                    "team_id": 12,
+                    "team_name": "Japan",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/12.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 871851,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-24T00:00:00+08:00",
+                "event_timestamp": 1669219200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Thumama Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 9,
+                    "team_name": "Spain",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/9.png"
+                },
+                "awayTeam": {
+                    "team_id": 29,
+                    "team_name": "Costa Rica",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/29.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855742,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-24T03:00:00+08:00",
+                "event_timestamp": 1669230000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Ahmed bin Ali Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1,
+                    "team_name": "Belgium",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1.png"
+                },
+                "awayTeam": {
+                    "team_id": 5529,
+                    "team_name": "Canada",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/5529.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855743,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-24T18:00:00+08:00",
+                "event_timestamp": 1669284000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Janoub Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 15,
+                    "team_name": "Switzerland",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/15.png"
+                },
+                "awayTeam": {
+                    "team_id": 1530,
+                    "team_name": "Cameroon",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1530.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855744,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-24T21:00:00+08:00",
+                "event_timestamp": 1669294800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Education City Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 7,
+                    "team_name": "Uruguay",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/7.png"
+                },
+                "awayTeam": {
+                    "team_id": 17,
+                    "team_name": "South Korea",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/17.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855745,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-25T00:00:00+08:00",
+                "event_timestamp": 1669305600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Stadium 974",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 27,
+                    "team_name": "Portugal",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/27.png"
+                },
+                "awayTeam": {
+                    "team_id": 1504,
+                    "team_name": "Ghana",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1504.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855746,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-25T03:00:00+08:00",
+                "event_timestamp": 1669316400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 1",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Lusail Iconic Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 6,
+                    "team_name": "Brazil",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/6.png"
+                },
+                "awayTeam": {
+                    "team_id": 14,
+                    "team_name": "Serbia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/14.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 866682,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-25T18:00:00+08:00",
+                "event_timestamp": 1669370400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Ahmad bin Ali Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 767,
+                    "team_name": "Wales",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/767.png"
+                },
+                "awayTeam": {
+                    "team_id": 22,
+                    "team_name": "Iran",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/22.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855747,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-25T21:00:00+08:00",
+                "event_timestamp": 1669381200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Thumama Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1569,
+                    "team_name": "Qatar",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1569.png"
+                },
+                "awayTeam": {
+                    "team_id": 13,
+                    "team_name": "Senegal",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/13.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855748,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-26T00:00:00+08:00",
+                "event_timestamp": 1669392000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Khalifa International Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1118,
+                    "team_name": "Netherlands",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1118.png"
+                },
+                "awayTeam": {
+                    "team_id": 2382,
+                    "team_name": "Ecuador",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2382.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855749,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-26T03:00:00+08:00",
+                "event_timestamp": 1669402800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Bayt Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 10,
+                    "team_name": "England",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/10.png"
+                },
+                "awayTeam": {
+                    "team_id": 2384,
+                    "team_name": "USA",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2384.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 871852,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-26T18:00:00+08:00",
+                "event_timestamp": 1669456800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Janoub Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 28,
+                    "team_name": "Tunisia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/28.png"
+                },
+                "awayTeam": {
+                    "team_id": 20,
+                    "team_name": "Australia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/20.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855750,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-26T21:00:00+08:00",
+                "event_timestamp": 1669467600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Education City Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 24,
+                    "team_name": "Poland",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/24.png"
+                },
+                "awayTeam": {
+                    "team_id": 23,
+                    "team_name": "Saudi Arabia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/23.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855751,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-27T00:00:00+08:00",
+                "event_timestamp": 1669478400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Stadium 974",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 2,
+                    "team_name": "France",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2.png"
+                },
+                "awayTeam": {
+                    "team_id": 21,
+                    "team_name": "Denmark",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/21.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855752,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-27T03:00:00+08:00",
+                "event_timestamp": 1669489200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Lusail Iconic Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 26,
+                    "team_name": "Argentina",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/26.png"
+                },
+                "awayTeam": {
+                    "team_id": 16,
+                    "team_name": "Mexico",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/16.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 871853,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-27T18:00:00+08:00",
+                "event_timestamp": 1669543200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Ahmad bin Ali Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 12,
+                    "team_name": "Japan",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/12.png"
+                },
+                "awayTeam": {
+                    "team_id": 29,
+                    "team_name": "Costa Rica",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/29.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855753,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-27T21:00:00+08:00",
+                "event_timestamp": 1669554000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Thumama Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1,
+                    "team_name": "Belgium",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1.png"
+                },
+                "awayTeam": {
+                    "team_id": 31,
+                    "team_name": "Morocco",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/31.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855754,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-28T00:00:00+08:00",
+                "event_timestamp": 1669564800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Khalifa International Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 3,
+                    "team_name": "Croatia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/3.png"
+                },
+                "awayTeam": {
+                    "team_id": 5529,
+                    "team_name": "Canada",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/5529.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855755,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-28T03:00:00+08:00",
+                "event_timestamp": 1669575600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Bayt Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 9,
+                    "team_name": "Spain",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/9.png"
+                },
+                "awayTeam": {
+                    "team_id": 25,
+                    "team_name": "Germany",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/25.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855756,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-28T18:00:00+08:00",
+                "event_timestamp": 1669629600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Janoub Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1530,
+                    "team_name": "Cameroon",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1530.png"
+                },
+                "awayTeam": {
+                    "team_id": 14,
+                    "team_name": "Serbia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/14.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855757,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-28T21:00:00+08:00",
+                "event_timestamp": 1669640400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Education City Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 17,
+                    "team_name": "South Korea",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/17.png"
+                },
+                "awayTeam": {
+                    "team_id": 1504,
+                    "team_name": "Ghana",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1504.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855758,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-29T00:00:00+08:00",
+                "event_timestamp": 1669651200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Stadium 974",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 6,
+                    "team_name": "Brazil",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/6.png"
+                },
+                "awayTeam": {
+                    "team_id": 15,
+                    "team_name": "Switzerland",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/15.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855759,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-29T03:00:00+08:00",
+                "event_timestamp": 1669662000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 2",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Lusail Iconic Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 27,
+                    "team_name": "Portugal",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/27.png"
+                },
+                "awayTeam": {
+                    "team_id": 7,
+                    "team_name": "Uruguay",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/7.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855760,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-29T23:00:00+08:00",
+                "event_timestamp": 1669734000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Bayt Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1118,
+                    "team_name": "Netherlands",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1118.png"
+                },
+                "awayTeam": {
+                    "team_id": 1569,
+                    "team_name": "Qatar",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1569.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855761,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-29T23:00:00+08:00",
+                "event_timestamp": 1669734000,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Khalifa International Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 2382,
+                    "team_name": "Ecuador",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2382.png"
+                },
+                "awayTeam": {
+                    "team_id": 13,
+                    "team_name": "Senegal",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/13.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855762,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-30T03:00:00+08:00",
+                "event_timestamp": 1669748400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Thumama Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 22,
+                    "team_name": "Iran",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/22.png"
+                },
+                "awayTeam": {
+                    "team_id": 2384,
+                    "team_name": "USA",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2384.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 866683,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-30T03:00:00+08:00",
+                "event_timestamp": 1669748400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Ahmad bin Ali Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 767,
+                    "team_name": "Wales",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/767.png"
+                },
+                "awayTeam": {
+                    "team_id": 10,
+                    "team_name": "England",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/10.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 871854,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-30T23:00:00+08:00",
+                "event_timestamp": 1669820400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Janoub Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 20,
+                    "team_name": "Australia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/20.png"
+                },
+                "awayTeam": {
+                    "team_id": 21,
+                    "team_name": "Denmark",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/21.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855763,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-11-30T23:00:00+08:00",
+                "event_timestamp": 1669820400,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Education City Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 28,
+                    "team_name": "Tunisia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/28.png"
+                },
+                "awayTeam": {
+                    "team_id": 2,
+                    "team_name": "France",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/2.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855765,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-01T03:00:00+08:00",
+                "event_timestamp": 1669834800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Lusail Iconic Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 23,
+                    "team_name": "Saudi Arabia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/23.png"
+                },
+                "awayTeam": {
+                    "team_id": 16,
+                    "team_name": "Mexico",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/16.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855764,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-01T03:00:00+08:00",
+                "event_timestamp": 1669834800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Stadium 974",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 24,
+                    "team_name": "Poland",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/24.png"
+                },
+                "awayTeam": {
+                    "team_id": 26,
+                    "team_name": "Argentina",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/26.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855766,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-01T23:00:00+08:00",
+                "event_timestamp": 1669906800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Ahmed bin Ali Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 3,
+                    "team_name": "Croatia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/3.png"
+                },
+                "awayTeam": {
+                    "team_id": 1,
+                    "team_name": "Belgium",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855767,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-01T23:00:00+08:00",
+                "event_timestamp": 1669906800,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Thumama Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 5529,
+                    "team_name": "Canada",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/5529.png"
+                },
+                "awayTeam": {
+                    "team_id": 31,
+                    "team_name": "Morocco",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/31.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855768,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-02T03:00:00+08:00",
+                "event_timestamp": 1669921200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Khalifa International Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 12,
+                    "team_name": "Japan",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/12.png"
+                },
+                "awayTeam": {
+                    "team_id": 9,
+                    "team_name": "Spain",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/9.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 871855,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-02T03:00:00+08:00",
+                "event_timestamp": 1669921200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Bayt Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 29,
+                    "team_name": "Costa Rica",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/29.png"
+                },
+                "awayTeam": {
+                    "team_id": 25,
+                    "team_name": "Germany",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/25.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855770,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-02T23:00:00+08:00",
+                "event_timestamp": 1669993200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Al Janoub Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1504,
+                    "team_name": "Ghana",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1504.png"
+                },
+                "awayTeam": {
+                    "team_id": 7,
+                    "team_name": "Uruguay",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/7.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855769,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-02T23:00:00+08:00",
+                "event_timestamp": 1669993200,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Education City Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 17,
+                    "team_name": "South Korea",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/17.png"
+                },
+                "awayTeam": {
+                    "team_id": 27,
+                    "team_name": "Portugal",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/27.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855772,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-03T03:00:00+08:00",
+                "event_timestamp": 1670007600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Stadium 974",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 14,
+                    "team_name": "Serbia",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/14.png"
+                },
+                "awayTeam": {
+                    "team_id": 15,
+                    "team_name": "Switzerland",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/15.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            },
+            {
+                "fixture_id": 855771,
+                "league_id": 4265,
+                "league": {
+                    "name": "World Cup",
+                    "country": "World",
+                    "logo": "https:\/\/media.api-sports.io\/football\/leagues\/1.png",
+                    "flag": null
+                },
+                "event_date": "2022-12-03T03:00:00+08:00",
+                "event_timestamp": 1670007600,
+                "firstHalfStart": null,
+                "secondHalfStart": null,
+                "round": "Group Stage - 3",
+                "status": "Not Started",
+                "statusShort": "NS",
+                "elapsed": 0,
+                "venue": "Lusail Iconic Stadium",
+                "referee": null,
+                "homeTeam": {
+                    "team_id": 1530,
+                    "team_name": "Cameroon",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/1530.png"
+                },
+                "awayTeam": {
+                    "team_id": 6,
+                    "team_name": "Brazil",
+                    "logo": "https:\/\/media.api-sports.io\/football\/teams\/6.png"
+                },
+                "goalsHomeTeam": null,
+                "goalsAwayTeam": null,
+                "score": {
+                    "halftime": null,
+                    "fulltime": null,
+                    "extratime": null,
+                    "penalty": null
+                }
+            }
+        ]
+    }
+}

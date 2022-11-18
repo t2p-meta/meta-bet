@@ -1,0 +1,2351 @@
+{
+  "contractName": "MetaBetNFT721Domain",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/MetaBetNFT721Domain.sol\":\"MetaBetNFT721Domain\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/MetaBetNFT721Domain.sol\":{\"keccak256\":\"0xa64a8e68dcd95fc876bcb00c9cd30af8602298bf238602737913710c454cc628\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7e0cb48999be6dc14dc91288e26ab368c62d589d1517e304eaf3c394fd425102\",\"dweb:/ipfs/QmViNtLdEVmet5xcaB39YQ5uJZ9SEUhrkCRFBmhAZqWAAj\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220a1fa5d8d6b610011663981199edde7e715decedb53fb4433bc752c9c6b60cd8864736f6c63430008110033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220a1fa5d8d6b610011663981199edde7e715decedb53fb4433bc752c9c6b60cd8864736f6c63430008110033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "91:1402:29:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "91:1402:29:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\npragma experimental ABIEncoderV2;\n\ncontract MetaBetNFT721Domain {\n    enum AssetType {\n        ETH,\n        ERC20,\n        ERC1155,\n        ERC721,\n        ERC721Deprecated\n    }\n\n    enum MatchResult {\n        NOT_DETERMINED,\n        DRAW,\n        TEAM_A_WON,\n        TEAM_B_WON\n    }\n    enum MatchState {\n        NOT_STARTED,\n        STARTED,\n        FINISHED\n    }\n\n    uint8 private constant TEAM_A = 1;\n    uint8 private constant TEAM_B = 2;\n\n    struct Match {\n        address creator;\n        string matchResultLink;\n        uint256 totalPayoutTeamA;\n        uint256 totalPayoutTeamB;\n        uint256 totalPayoutDraw;\n        uint256 totalCollected;\n        MatchResult result;\n        MatchState state;\n        bool exists;\n        MatchInfo matchInfo;\n    }\n\n    // Match base Info\n    struct MatchInfo {\n        uint32 oddsTeamA;\n        uint32 oddsTeamB;\n        uint32 oddsDraw;\n        uint256 startAt;\n        AssetType assetType;\n        address payToken;\n        uint256 initOddsTeamA;\n        uint256 initOddsTeamB;\n        uint256 initOddsDraw;\n    }\n\n    // NFT issued to winner\n    struct SmartAsset {\n        address owner;\n        uint256 matchId;\n        MatchResult matchResult;\n        uint256 initialValue;\n        uint8 accruedInterest;\n        AssetType assetType;\n        address payToken;\n    }\n\n    struct PayAsset {\n        AssetType assetType;\n        address payToken;\n        uint256 payValue;\n    }\n}\n",
+  "sourcePath": "D:\\CSDN\\github\\SmartBet\\contracts\\MetaBetNFT721Domain.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/MetaBetNFT721Domain.sol",
+    "exportedSymbols": {
+      "MetaBetNFT721Domain": [
+        8322
+      ]
+    },
+    "id": 8323,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 8230,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:29"
+      },
+      {
+        "id": 8231,
+        "literals": [
+          "experimental",
+          "ABIEncoderV2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "56:33:29"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "MetaBetNFT721Domain",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 8322,
+        "linearizedBaseContracts": [
+          8322
+        ],
+        "name": "MetaBetNFT721Domain",
+        "nameLocation": "100:19:29",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "MetaBetNFT721Domain.AssetType",
+            "id": 8237,
+            "members": [
+              {
+                "id": 8232,
+                "name": "ETH",
+                "nameLocation": "151:3:29",
+                "nodeType": "EnumValue",
+                "src": "151:3:29"
+              },
+              {
+                "id": 8233,
+                "name": "ERC20",
+                "nameLocation": "164:5:29",
+                "nodeType": "EnumValue",
+                "src": "164:5:29"
+              },
+              {
+                "id": 8234,
+                "name": "ERC1155",
+                "nameLocation": "179:7:29",
+                "nodeType": "EnumValue",
+                "src": "179:7:29"
+              },
+              {
+                "id": 8235,
+                "name": "ERC721",
+                "nameLocation": "196:6:29",
+                "nodeType": "EnumValue",
+                "src": "196:6:29"
+              },
+              {
+                "id": 8236,
+                "name": "ERC721Deprecated",
+                "nameLocation": "212:16:29",
+                "nodeType": "EnumValue",
+                "src": "212:16:29"
+              }
+            ],
+            "name": "AssetType",
+            "nameLocation": "131:9:29",
+            "nodeType": "EnumDefinition",
+            "src": "126:108:29"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.MatchResult",
+            "id": 8242,
+            "members": [
+              {
+                "id": 8238,
+                "name": "NOT_DETERMINED",
+                "nameLocation": "267:14:29",
+                "nodeType": "EnumValue",
+                "src": "267:14:29"
+              },
+              {
+                "id": 8239,
+                "name": "DRAW",
+                "nameLocation": "291:4:29",
+                "nodeType": "EnumValue",
+                "src": "291:4:29"
+              },
+              {
+                "id": 8240,
+                "name": "TEAM_A_WON",
+                "nameLocation": "305:10:29",
+                "nodeType": "EnumValue",
+                "src": "305:10:29"
+              },
+              {
+                "id": 8241,
+                "name": "TEAM_B_WON",
+                "nameLocation": "325:10:29",
+                "nodeType": "EnumValue",
+                "src": "325:10:29"
+              }
+            ],
+            "name": "MatchResult",
+            "nameLocation": "245:11:29",
+            "nodeType": "EnumDefinition",
+            "src": "240:101:29"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.MatchState",
+            "id": 8246,
+            "members": [
+              {
+                "id": 8243,
+                "name": "NOT_STARTED",
+                "nameLocation": "372:11:29",
+                "nodeType": "EnumValue",
+                "src": "372:11:29"
+              },
+              {
+                "id": 8244,
+                "name": "STARTED",
+                "nameLocation": "393:7:29",
+                "nodeType": "EnumValue",
+                "src": "393:7:29"
+              },
+              {
+                "id": 8245,
+                "name": "FINISHED",
+                "nameLocation": "410:8:29",
+                "nodeType": "EnumValue",
+                "src": "410:8:29"
+              }
+            ],
+            "name": "MatchState",
+            "nameLocation": "351:10:29",
+            "nodeType": "EnumDefinition",
+            "src": "346:78:29"
+          },
+          {
+            "constant": true,
+            "id": 8249,
+            "mutability": "constant",
+            "name": "TEAM_A",
+            "nameLocation": "453:6:29",
+            "nodeType": "VariableDeclaration",
+            "scope": 8322,
+            "src": "430:33:29",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint8",
+              "typeString": "uint8"
+            },
+            "typeName": {
+              "id": 8247,
+              "name": "uint8",
+              "nodeType": "ElementaryTypeName",
+              "src": "430:5:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint8",
+                "typeString": "uint8"
+              }
+            },
+            "value": {
+              "hexValue": "31",
+              "id": 8248,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "462:1:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_1_by_1",
+                "typeString": "int_const 1"
+              },
+              "value": "1"
+            },
+            "visibility": "private"
+          },
+          {
+            "constant": true,
+            "id": 8252,
+            "mutability": "constant",
+            "name": "TEAM_B",
+            "nameLocation": "492:6:29",
+            "nodeType": "VariableDeclaration",
+            "scope": 8322,
+            "src": "469:33:29",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint8",
+              "typeString": "uint8"
+            },
+            "typeName": {
+              "id": 8250,
+              "name": "uint8",
+              "nodeType": "ElementaryTypeName",
+              "src": "469:5:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint8",
+                "typeString": "uint8"
+              }
+            },
+            "value": {
+              "hexValue": "32",
+              "id": 8251,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "501:1:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_2_by_1",
+                "typeString": "int_const 2"
+              },
+              "value": "2"
+            },
+            "visibility": "private"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.Match",
+            "id": 8276,
+            "members": [
+              {
+                "constant": false,
+                "id": 8254,
+                "mutability": "mutable",
+                "name": "creator",
+                "nameLocation": "540:7:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "532:15:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8253,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "532:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8256,
+                "mutability": "mutable",
+                "name": "matchResultLink",
+                "nameLocation": "564:15:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "557:22:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 8255,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "557:6:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8258,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamA",
+                "nameLocation": "597:16:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "589:24:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8257,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "589:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8260,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamB",
+                "nameLocation": "631:16:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "623:24:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8259,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "623:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8262,
+                "mutability": "mutable",
+                "name": "totalPayoutDraw",
+                "nameLocation": "665:15:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "657:23:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8261,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "657:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8264,
+                "mutability": "mutable",
+                "name": "totalCollected",
+                "nameLocation": "698:14:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "690:22:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8263,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "690:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8267,
+                "mutability": "mutable",
+                "name": "result",
+                "nameLocation": "734:6:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "722:18:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchResult_$8242",
+                  "typeString": "enum MetaBetNFT721Domain.MatchResult"
+                },
+                "typeName": {
+                  "id": 8266,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8265,
+                    "name": "MatchResult",
+                    "nameLocations": [
+                      "722:11:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8242,
+                    "src": "722:11:29"
+                  },
+                  "referencedDeclaration": 8242,
+                  "src": "722:11:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchResult_$8242",
+                    "typeString": "enum MetaBetNFT721Domain.MatchResult"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8270,
+                "mutability": "mutable",
+                "name": "state",
+                "nameLocation": "761:5:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "750:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchState_$8246",
+                  "typeString": "enum MetaBetNFT721Domain.MatchState"
+                },
+                "typeName": {
+                  "id": 8269,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8268,
+                    "name": "MatchState",
+                    "nameLocations": [
+                      "750:10:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8246,
+                    "src": "750:10:29"
+                  },
+                  "referencedDeclaration": 8246,
+                  "src": "750:10:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchState_$8246",
+                    "typeString": "enum MetaBetNFT721Domain.MatchState"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8272,
+                "mutability": "mutable",
+                "name": "exists",
+                "nameLocation": "781:6:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "776:11:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 8271,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "776:4:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8275,
+                "mutability": "mutable",
+                "name": "matchInfo",
+                "nameLocation": "807:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "797:19:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_MatchInfo_$8296_storage_ptr",
+                  "typeString": "struct MetaBetNFT721Domain.MatchInfo"
+                },
+                "typeName": {
+                  "id": 8274,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8273,
+                    "name": "MatchInfo",
+                    "nameLocations": [
+                      "797:9:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8296,
+                    "src": "797:9:29"
+                  },
+                  "referencedDeclaration": 8296,
+                  "src": "797:9:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_MatchInfo_$8296_storage_ptr",
+                    "typeString": "struct MetaBetNFT721Domain.MatchInfo"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Match",
+            "nameLocation": "516:5:29",
+            "nodeType": "StructDefinition",
+            "scope": 8322,
+            "src": "509:314:29",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.MatchInfo",
+            "id": 8296,
+            "members": [
+              {
+                "constant": false,
+                "id": 8278,
+                "mutability": "mutable",
+                "name": "oddsTeamA",
+                "nameLocation": "886:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "879:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint32",
+                  "typeString": "uint32"
+                },
+                "typeName": {
+                  "id": 8277,
+                  "name": "uint32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "879:6:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint32",
+                    "typeString": "uint32"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8280,
+                "mutability": "mutable",
+                "name": "oddsTeamB",
+                "nameLocation": "912:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "905:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint32",
+                  "typeString": "uint32"
+                },
+                "typeName": {
+                  "id": 8279,
+                  "name": "uint32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "905:6:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint32",
+                    "typeString": "uint32"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8282,
+                "mutability": "mutable",
+                "name": "oddsDraw",
+                "nameLocation": "938:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "931:15:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint32",
+                  "typeString": "uint32"
+                },
+                "typeName": {
+                  "id": 8281,
+                  "name": "uint32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "931:6:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint32",
+                    "typeString": "uint32"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8284,
+                "mutability": "mutable",
+                "name": "startAt",
+                "nameLocation": "964:7:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "956:15:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8283,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "956:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8287,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "991:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "981:19:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$8237",
+                  "typeString": "enum MetaBetNFT721Domain.AssetType"
+                },
+                "typeName": {
+                  "id": 8286,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8285,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "981:9:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8237,
+                    "src": "981:9:29"
+                  },
+                  "referencedDeclaration": 8237,
+                  "src": "981:9:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$8237",
+                    "typeString": "enum MetaBetNFT721Domain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8289,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "1018:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "1010:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8288,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1010:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8291,
+                "mutability": "mutable",
+                "name": "initOddsTeamA",
+                "nameLocation": "1044:13:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "1036:21:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8290,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1036:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8293,
+                "mutability": "mutable",
+                "name": "initOddsTeamB",
+                "nameLocation": "1075:13:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "1067:21:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8292,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1067:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8295,
+                "mutability": "mutable",
+                "name": "initOddsDraw",
+                "nameLocation": "1106:12:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "1098:20:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8294,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1098:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "MatchInfo",
+            "nameLocation": "859:9:29",
+            "nodeType": "StructDefinition",
+            "scope": 8322,
+            "src": "852:273:29",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.SmartAsset",
+            "id": 8313,
+            "members": [
+              {
+                "constant": false,
+                "id": 8298,
+                "mutability": "mutable",
+                "name": "owner",
+                "nameLocation": "1195:5:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1187:13:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8297,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1187:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8300,
+                "mutability": "mutable",
+                "name": "matchId",
+                "nameLocation": "1218:7:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1210:15:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8299,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1210:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8303,
+                "mutability": "mutable",
+                "name": "matchResult",
+                "nameLocation": "1247:11:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1235:23:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchResult_$8242",
+                  "typeString": "enum MetaBetNFT721Domain.MatchResult"
+                },
+                "typeName": {
+                  "id": 8302,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8301,
+                    "name": "MatchResult",
+                    "nameLocations": [
+                      "1235:11:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8242,
+                    "src": "1235:11:29"
+                  },
+                  "referencedDeclaration": 8242,
+                  "src": "1235:11:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchResult_$8242",
+                    "typeString": "enum MetaBetNFT721Domain.MatchResult"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8305,
+                "mutability": "mutable",
+                "name": "initialValue",
+                "nameLocation": "1276:12:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1268:20:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8304,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1268:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8307,
+                "mutability": "mutable",
+                "name": "accruedInterest",
+                "nameLocation": "1304:15:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1298:21:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 8306,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1298:5:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8310,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "1339:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1329:19:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$8237",
+                  "typeString": "enum MetaBetNFT721Domain.AssetType"
+                },
+                "typeName": {
+                  "id": 8309,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8308,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "1329:9:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8237,
+                    "src": "1329:9:29"
+                  },
+                  "referencedDeclaration": 8237,
+                  "src": "1329:9:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$8237",
+                    "typeString": "enum MetaBetNFT721Domain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8312,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "1366:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1358:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8311,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1358:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SmartAsset",
+            "nameLocation": "1166:10:29",
+            "nodeType": "StructDefinition",
+            "scope": 8322,
+            "src": "1159:222:29",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.PayAsset",
+            "id": 8321,
+            "members": [
+              {
+                "constant": false,
+                "id": 8316,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "1423:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8321,
+                "src": "1413:19:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$8237",
+                  "typeString": "enum MetaBetNFT721Domain.AssetType"
+                },
+                "typeName": {
+                  "id": 8315,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8314,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "1413:9:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8237,
+                    "src": "1413:9:29"
+                  },
+                  "referencedDeclaration": 8237,
+                  "src": "1413:9:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$8237",
+                    "typeString": "enum MetaBetNFT721Domain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8318,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "1450:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8321,
+                "src": "1442:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8317,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1442:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8320,
+                "mutability": "mutable",
+                "name": "payValue",
+                "nameLocation": "1476:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8321,
+                "src": "1468:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8319,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1468:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "PayAsset",
+            "nameLocation": "1394:8:29",
+            "nodeType": "StructDefinition",
+            "scope": 8322,
+            "src": "1387:104:29",
+            "visibility": "public"
+          }
+        ],
+        "scope": 8323,
+        "src": "91:1402:29",
+        "usedErrors": []
+      }
+    ],
+    "src": "32:1462:29"
+  },
+  "legacyAST": {
+    "absolutePath": "project:/contracts/MetaBetNFT721Domain.sol",
+    "exportedSymbols": {
+      "MetaBetNFT721Domain": [
+        8322
+      ]
+    },
+    "id": 8323,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 8230,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:29"
+      },
+      {
+        "id": 8231,
+        "literals": [
+          "experimental",
+          "ABIEncoderV2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "56:33:29"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "MetaBetNFT721Domain",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 8322,
+        "linearizedBaseContracts": [
+          8322
+        ],
+        "name": "MetaBetNFT721Domain",
+        "nameLocation": "100:19:29",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "MetaBetNFT721Domain.AssetType",
+            "id": 8237,
+            "members": [
+              {
+                "id": 8232,
+                "name": "ETH",
+                "nameLocation": "151:3:29",
+                "nodeType": "EnumValue",
+                "src": "151:3:29"
+              },
+              {
+                "id": 8233,
+                "name": "ERC20",
+                "nameLocation": "164:5:29",
+                "nodeType": "EnumValue",
+                "src": "164:5:29"
+              },
+              {
+                "id": 8234,
+                "name": "ERC1155",
+                "nameLocation": "179:7:29",
+                "nodeType": "EnumValue",
+                "src": "179:7:29"
+              },
+              {
+                "id": 8235,
+                "name": "ERC721",
+                "nameLocation": "196:6:29",
+                "nodeType": "EnumValue",
+                "src": "196:6:29"
+              },
+              {
+                "id": 8236,
+                "name": "ERC721Deprecated",
+                "nameLocation": "212:16:29",
+                "nodeType": "EnumValue",
+                "src": "212:16:29"
+              }
+            ],
+            "name": "AssetType",
+            "nameLocation": "131:9:29",
+            "nodeType": "EnumDefinition",
+            "src": "126:108:29"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.MatchResult",
+            "id": 8242,
+            "members": [
+              {
+                "id": 8238,
+                "name": "NOT_DETERMINED",
+                "nameLocation": "267:14:29",
+                "nodeType": "EnumValue",
+                "src": "267:14:29"
+              },
+              {
+                "id": 8239,
+                "name": "DRAW",
+                "nameLocation": "291:4:29",
+                "nodeType": "EnumValue",
+                "src": "291:4:29"
+              },
+              {
+                "id": 8240,
+                "name": "TEAM_A_WON",
+                "nameLocation": "305:10:29",
+                "nodeType": "EnumValue",
+                "src": "305:10:29"
+              },
+              {
+                "id": 8241,
+                "name": "TEAM_B_WON",
+                "nameLocation": "325:10:29",
+                "nodeType": "EnumValue",
+                "src": "325:10:29"
+              }
+            ],
+            "name": "MatchResult",
+            "nameLocation": "245:11:29",
+            "nodeType": "EnumDefinition",
+            "src": "240:101:29"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.MatchState",
+            "id": 8246,
+            "members": [
+              {
+                "id": 8243,
+                "name": "NOT_STARTED",
+                "nameLocation": "372:11:29",
+                "nodeType": "EnumValue",
+                "src": "372:11:29"
+              },
+              {
+                "id": 8244,
+                "name": "STARTED",
+                "nameLocation": "393:7:29",
+                "nodeType": "EnumValue",
+                "src": "393:7:29"
+              },
+              {
+                "id": 8245,
+                "name": "FINISHED",
+                "nameLocation": "410:8:29",
+                "nodeType": "EnumValue",
+                "src": "410:8:29"
+              }
+            ],
+            "name": "MatchState",
+            "nameLocation": "351:10:29",
+            "nodeType": "EnumDefinition",
+            "src": "346:78:29"
+          },
+          {
+            "constant": true,
+            "id": 8249,
+            "mutability": "constant",
+            "name": "TEAM_A",
+            "nameLocation": "453:6:29",
+            "nodeType": "VariableDeclaration",
+            "scope": 8322,
+            "src": "430:33:29",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint8",
+              "typeString": "uint8"
+            },
+            "typeName": {
+              "id": 8247,
+              "name": "uint8",
+              "nodeType": "ElementaryTypeName",
+              "src": "430:5:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint8",
+                "typeString": "uint8"
+              }
+            },
+            "value": {
+              "hexValue": "31",
+              "id": 8248,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "462:1:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_1_by_1",
+                "typeString": "int_const 1"
+              },
+              "value": "1"
+            },
+            "visibility": "private"
+          },
+          {
+            "constant": true,
+            "id": 8252,
+            "mutability": "constant",
+            "name": "TEAM_B",
+            "nameLocation": "492:6:29",
+            "nodeType": "VariableDeclaration",
+            "scope": 8322,
+            "src": "469:33:29",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint8",
+              "typeString": "uint8"
+            },
+            "typeName": {
+              "id": 8250,
+              "name": "uint8",
+              "nodeType": "ElementaryTypeName",
+              "src": "469:5:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint8",
+                "typeString": "uint8"
+              }
+            },
+            "value": {
+              "hexValue": "32",
+              "id": 8251,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "501:1:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_2_by_1",
+                "typeString": "int_const 2"
+              },
+              "value": "2"
+            },
+            "visibility": "private"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.Match",
+            "id": 8276,
+            "members": [
+              {
+                "constant": false,
+                "id": 8254,
+                "mutability": "mutable",
+                "name": "creator",
+                "nameLocation": "540:7:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "532:15:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8253,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "532:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8256,
+                "mutability": "mutable",
+                "name": "matchResultLink",
+                "nameLocation": "564:15:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "557:22:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 8255,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "557:6:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8258,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamA",
+                "nameLocation": "597:16:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "589:24:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8257,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "589:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8260,
+                "mutability": "mutable",
+                "name": "totalPayoutTeamB",
+                "nameLocation": "631:16:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "623:24:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8259,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "623:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8262,
+                "mutability": "mutable",
+                "name": "totalPayoutDraw",
+                "nameLocation": "665:15:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "657:23:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8261,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "657:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8264,
+                "mutability": "mutable",
+                "name": "totalCollected",
+                "nameLocation": "698:14:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "690:22:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8263,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "690:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8267,
+                "mutability": "mutable",
+                "name": "result",
+                "nameLocation": "734:6:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "722:18:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchResult_$8242",
+                  "typeString": "enum MetaBetNFT721Domain.MatchResult"
+                },
+                "typeName": {
+                  "id": 8266,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8265,
+                    "name": "MatchResult",
+                    "nameLocations": [
+                      "722:11:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8242,
+                    "src": "722:11:29"
+                  },
+                  "referencedDeclaration": 8242,
+                  "src": "722:11:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchResult_$8242",
+                    "typeString": "enum MetaBetNFT721Domain.MatchResult"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8270,
+                "mutability": "mutable",
+                "name": "state",
+                "nameLocation": "761:5:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "750:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchState_$8246",
+                  "typeString": "enum MetaBetNFT721Domain.MatchState"
+                },
+                "typeName": {
+                  "id": 8269,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8268,
+                    "name": "MatchState",
+                    "nameLocations": [
+                      "750:10:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8246,
+                    "src": "750:10:29"
+                  },
+                  "referencedDeclaration": 8246,
+                  "src": "750:10:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchState_$8246",
+                    "typeString": "enum MetaBetNFT721Domain.MatchState"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8272,
+                "mutability": "mutable",
+                "name": "exists",
+                "nameLocation": "781:6:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "776:11:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 8271,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "776:4:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8275,
+                "mutability": "mutable",
+                "name": "matchInfo",
+                "nameLocation": "807:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8276,
+                "src": "797:19:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_MatchInfo_$8296_storage_ptr",
+                  "typeString": "struct MetaBetNFT721Domain.MatchInfo"
+                },
+                "typeName": {
+                  "id": 8274,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8273,
+                    "name": "MatchInfo",
+                    "nameLocations": [
+                      "797:9:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8296,
+                    "src": "797:9:29"
+                  },
+                  "referencedDeclaration": 8296,
+                  "src": "797:9:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_MatchInfo_$8296_storage_ptr",
+                    "typeString": "struct MetaBetNFT721Domain.MatchInfo"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Match",
+            "nameLocation": "516:5:29",
+            "nodeType": "StructDefinition",
+            "scope": 8322,
+            "src": "509:314:29",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.MatchInfo",
+            "id": 8296,
+            "members": [
+              {
+                "constant": false,
+                "id": 8278,
+                "mutability": "mutable",
+                "name": "oddsTeamA",
+                "nameLocation": "886:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "879:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint32",
+                  "typeString": "uint32"
+                },
+                "typeName": {
+                  "id": 8277,
+                  "name": "uint32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "879:6:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint32",
+                    "typeString": "uint32"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8280,
+                "mutability": "mutable",
+                "name": "oddsTeamB",
+                "nameLocation": "912:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "905:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint32",
+                  "typeString": "uint32"
+                },
+                "typeName": {
+                  "id": 8279,
+                  "name": "uint32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "905:6:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint32",
+                    "typeString": "uint32"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8282,
+                "mutability": "mutable",
+                "name": "oddsDraw",
+                "nameLocation": "938:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "931:15:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint32",
+                  "typeString": "uint32"
+                },
+                "typeName": {
+                  "id": 8281,
+                  "name": "uint32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "931:6:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint32",
+                    "typeString": "uint32"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8284,
+                "mutability": "mutable",
+                "name": "startAt",
+                "nameLocation": "964:7:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "956:15:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8283,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "956:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8287,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "991:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "981:19:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$8237",
+                  "typeString": "enum MetaBetNFT721Domain.AssetType"
+                },
+                "typeName": {
+                  "id": 8286,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8285,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "981:9:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8237,
+                    "src": "981:9:29"
+                  },
+                  "referencedDeclaration": 8237,
+                  "src": "981:9:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$8237",
+                    "typeString": "enum MetaBetNFT721Domain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8289,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "1018:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "1010:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8288,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1010:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8291,
+                "mutability": "mutable",
+                "name": "initOddsTeamA",
+                "nameLocation": "1044:13:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "1036:21:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8290,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1036:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8293,
+                "mutability": "mutable",
+                "name": "initOddsTeamB",
+                "nameLocation": "1075:13:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "1067:21:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8292,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1067:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8295,
+                "mutability": "mutable",
+                "name": "initOddsDraw",
+                "nameLocation": "1106:12:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8296,
+                "src": "1098:20:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8294,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1098:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "MatchInfo",
+            "nameLocation": "859:9:29",
+            "nodeType": "StructDefinition",
+            "scope": 8322,
+            "src": "852:273:29",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.SmartAsset",
+            "id": 8313,
+            "members": [
+              {
+                "constant": false,
+                "id": 8298,
+                "mutability": "mutable",
+                "name": "owner",
+                "nameLocation": "1195:5:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1187:13:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8297,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1187:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8300,
+                "mutability": "mutable",
+                "name": "matchId",
+                "nameLocation": "1218:7:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1210:15:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8299,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1210:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8303,
+                "mutability": "mutable",
+                "name": "matchResult",
+                "nameLocation": "1247:11:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1235:23:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_MatchResult_$8242",
+                  "typeString": "enum MetaBetNFT721Domain.MatchResult"
+                },
+                "typeName": {
+                  "id": 8302,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8301,
+                    "name": "MatchResult",
+                    "nameLocations": [
+                      "1235:11:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8242,
+                    "src": "1235:11:29"
+                  },
+                  "referencedDeclaration": 8242,
+                  "src": "1235:11:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_MatchResult_$8242",
+                    "typeString": "enum MetaBetNFT721Domain.MatchResult"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8305,
+                "mutability": "mutable",
+                "name": "initialValue",
+                "nameLocation": "1276:12:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1268:20:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8304,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1268:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8307,
+                "mutability": "mutable",
+                "name": "accruedInterest",
+                "nameLocation": "1304:15:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1298:21:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 8306,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1298:5:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8310,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "1339:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1329:19:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$8237",
+                  "typeString": "enum MetaBetNFT721Domain.AssetType"
+                },
+                "typeName": {
+                  "id": 8309,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8308,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "1329:9:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8237,
+                    "src": "1329:9:29"
+                  },
+                  "referencedDeclaration": 8237,
+                  "src": "1329:9:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$8237",
+                    "typeString": "enum MetaBetNFT721Domain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8312,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "1366:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8313,
+                "src": "1358:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8311,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1358:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SmartAsset",
+            "nameLocation": "1166:10:29",
+            "nodeType": "StructDefinition",
+            "scope": 8322,
+            "src": "1159:222:29",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "MetaBetNFT721Domain.PayAsset",
+            "id": 8321,
+            "members": [
+              {
+                "constant": false,
+                "id": 8316,
+                "mutability": "mutable",
+                "name": "assetType",
+                "nameLocation": "1423:9:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8321,
+                "src": "1413:19:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_AssetType_$8237",
+                  "typeString": "enum MetaBetNFT721Domain.AssetType"
+                },
+                "typeName": {
+                  "id": 8315,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 8314,
+                    "name": "AssetType",
+                    "nameLocations": [
+                      "1413:9:29"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 8237,
+                    "src": "1413:9:29"
+                  },
+                  "referencedDeclaration": 8237,
+                  "src": "1413:9:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_AssetType_$8237",
+                    "typeString": "enum MetaBetNFT721Domain.AssetType"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8318,
+                "mutability": "mutable",
+                "name": "payToken",
+                "nameLocation": "1450:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8321,
+                "src": "1442:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 8317,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1442:7:29",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 8320,
+                "mutability": "mutable",
+                "name": "payValue",
+                "nameLocation": "1476:8:29",
+                "nodeType": "VariableDeclaration",
+                "scope": 8321,
+                "src": "1468:16:29",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 8319,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1468:7:29",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "PayAsset",
+            "nameLocation": "1394:8:29",
+            "nodeType": "StructDefinition",
+            "scope": 8322,
+            "src": "1387:104:29",
+            "visibility": "public"
+          }
+        ],
+        "scope": 8323,
+        "src": "91:1402:29",
+        "usedErrors": []
+      }
+    ],
+    "src": "32:1462:29"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.17+commit.8df45f5f.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.6",
+  "updatedAt": "2022-11-07T11:18:53.021Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
