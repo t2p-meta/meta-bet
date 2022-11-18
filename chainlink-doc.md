@@ -104,7 +104,7 @@ observationSource = """
 ### 3. Smart Contract
 ```js
 /* Allow owner to get the data of stored games */
-    function requestSchedule() public onlyOwner {
+    function requestSchedule() public {
         uint256 matchCount = metaBet.countMatchs();
         require(matchCount > 0, "Match Empty");
         for (uint256 i = 0; i < matchCount; i++) {
@@ -126,7 +126,6 @@ observationSource = """
 /**
      * @notice Stores the scheduled games.
      * @param _requestId the request ID for fulfillment.
-     * @param _leagueId the games either to be created or resolved.
      * @param _fixtureId the games either to be created or resolved.
      * @param _isFinish the games either to be created or resolved.
      * @param _scoreTeamA the games either to be created or resolved.
@@ -134,12 +133,11 @@ observationSource = """
      */
     function fulfillSchedule(
         bytes32 _requestId,
-        uint256 _leagueId,
         uint256 _fixtureId,
         bool _isFinish,
         uint8 _scoreTeamA,
         uint8 _scoreTeamB
-    ) external onlyOwner recordChainlinkFulfillment(_requestId) {
+    ) public  recordChainlinkFulfillment(_requestId) {
         if (_isFinish) {
             uint256 _matchId = metaBet.apiMatchId(_fixtureId);
             uint8 _matchResult = 0;
@@ -158,6 +156,13 @@ observationSource = """
                 _scoreTeamB
             );
         }
+        emit RequestMultipleFulfilled(
+            _requestId,
+            _fixtureId,
+            _isFinish,
+            _scoreTeamA,
+            _scoreTeamB
+        );
     }
 
 

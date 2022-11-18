@@ -24,6 +24,14 @@ contract MetaBetMatch is Context, ChainlinkClient, ConfirmedOwner {
 
     error FailedTransferLINK(address to, uint256 amount);
 
+    event RequestMultipleFulfilled(
+        bytes32 indexed requestId,
+        uint256 indexed fixtureId,
+        bool isFinish,
+        uint8 scoreTeamA,
+        uint8 scoreTeamB
+    );
+
     ////////////////////////////////////////
     //                                    //
     //           CONSTRUCTOR              //
@@ -62,11 +70,14 @@ contract MetaBetMatch is Context, ChainlinkClient, ConfirmedOwner {
     //                                    //
     ////////////////////////////////////////
 
-    function setOracle(address _oracle) external {
+    function setOracle(address _oracle) public onlyOwner {
         setChainlinkOracle(_oracle);
     }
 
-    function withdrawLink(uint256 _amount, address payable _payee) external {
+    function withdrawLink(uint256 _amount, address payable _payee)
+        public
+        onlyOwner
+    {
         LinkTokenInterface linkToken = LinkTokenInterface(
             chainlinkTokenAddress()
         );
@@ -93,7 +104,7 @@ contract MetaBetMatch is Context, ChainlinkClient, ConfirmedOwner {
         uint256 _payment,
         bytes4 _callbackFunctionId,
         uint256 _expiration
-    ) external {
+    ) public {
         cancelChainlinkRequest(
             _requestId,
             _payment,
@@ -116,7 +127,7 @@ contract MetaBetMatch is Context, ChainlinkClient, ConfirmedOwner {
         bool _isFinish,
         uint8 _scoreTeamA,
         uint8 _scoreTeamB
-    ) external onlyOwner recordChainlinkFulfillment(_requestId) {
+    ) public recordChainlinkFulfillment(_requestId) {
         // requestIdGames[_requestId] = _result;
         // 判断赛程是否已结束 _isFinish "status": "Match Finished" "statusShort": "FT",
         if (_isFinish) {
@@ -152,10 +163,17 @@ contract MetaBetMatch is Context, ChainlinkClient, ConfirmedOwner {
                 _scoreTeamB
             );
         }
+        emit RequestMultipleFulfilled(
+            _requestId,
+            _fixtureId,
+            _isFinish,
+            _scoreTeamA,
+            _scoreTeamB
+        );
     }
 
     /* Allow owner to get the data of stored games */
-    function requestSchedule() public onlyOwner {
+    function requestSchedule() public {
         uint256 matchCount = metaBet.countMatchs();
         require(matchCount > 0, "Match Empty");
         for (uint256 i = 0; i < matchCount; i++) {
@@ -164,7 +182,7 @@ contract MetaBetMatch is Context, ChainlinkClient, ConfirmedOwner {
                 address(this),
                 this.fulfillSchedule.selector
             );
-            req.add("api", metaBet.matchResultLink(i));
+            req.add("api", metaBet.matchResultLink(i + 1));
             // req.add(
             //     "get",
             //     string(
