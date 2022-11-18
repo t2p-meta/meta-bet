@@ -1,3 +1,12 @@
+# The Project
+
+1.Digital Human AI engine calls the conversational AI model, when digital human speaking with customer;
+2.AI model retrieves data from Chainlink external adapter;
+3.Chainlink external adapter retrieves real-time data (e.g. scores and odds) from off-chain API;
+4.Digital human interacts with smart contracts, helping customer to place an order. order information is recorded on-chain; It is impossible to modify the order (say betting records) thus prevents fraudulent behavior.
+5.Later, as scheduled, Digital Human AI engine retrieves data from Chainlink external adapter again, attaches more info to the orders on-chain, such as the final score of matches or the earning or losses of each betting order.
+
+
 # Sample Hardhat Project
 
 This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
@@ -13,7 +22,9 @@ npx hardhat run scripts/deploy.js
 ```
 
 
-### 1. The MetaAI API
+
+
+### 1. e.g. The WorldCup Football API
 
 ```
 Livescores API
