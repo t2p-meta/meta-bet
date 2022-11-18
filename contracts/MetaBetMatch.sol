@@ -3,13 +3,13 @@ pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "./MetaBetInterface.sol";
 
 import "hardhat/console.sol";
 
-contract MetaBetMatch is Context, Ownable, ChainlinkClient {
+contract MetaBetMatch is Context, ChainlinkClient, ConfirmedOwner {
     using Chainlink for Chainlink.Request;
     using CBORChainlink for BufferChainlink.buffer;
 
@@ -17,10 +17,8 @@ contract MetaBetMatch is Context, Ownable, ChainlinkClient {
     uint256 private constant LINK_PAYMENT = (1 * LINK_DIVISIBILITY) / 10;
 
     // Job ID of Get > bytes32 job  Found on market.link jobId = '7223acbd01654282865b678924126013';
-    bytes32 private constant BYTES_JOB = "7223acbd01654282865b678924126013";
-
-    string private constant FINISH_END = "FT";
-    mapping(string => bool) MATHCSTATUS;
+    // External Job ID :8c96e326-692b-45c3-83eb-d0d0dbe7bfc5 replaceAll("-","")
+    bytes32 private constant BYTES_JOB = "8c96e326692b45c383ebd0d0dbe7bfc5";
 
     MetaBetInterface metaBet;
 
@@ -51,10 +49,9 @@ contract MetaBetMatch is Context, Ownable, ChainlinkClient {
         address _metabet,
         address _link,
         address _oracle
-    ) {
+    ) ConfirmedOwner(msg.sender) {
         setChainlinkToken(_link);
         setChainlinkOracle(_oracle);
-        MATHCSTATUS[FINISH_END] = true;
         metaBet = MetaBetInterface(_metabet);
         console.log("deploy ..... contract meta bet...");
     }
@@ -108,25 +105,21 @@ contract MetaBetMatch is Context, Ownable, ChainlinkClient {
     /**
      * @notice Stores the scheduled games.
      * @param _requestId the request ID for fulfillment.
-     * @param _leagueId the games either to be created or resolved.
      * @param _fixtureId the games either to be created or resolved.
-     * @param _status the games either to be created or resolved.
+     * @param _isFinish the games either to be created or resolved.
      * @param _scoreTeamA the games either to be created or resolved.
      * @param _scoreTeamB the games either to be created or resolved.
      */
     function fulfillSchedule(
         bytes32 _requestId,
-        uint256 _leagueId,
         uint256 _fixtureId,
-        string memory _status,
+        bool _isFinish,
         uint8 _scoreTeamA,
         uint8 _scoreTeamB
     ) external onlyOwner recordChainlinkFulfillment(_requestId) {
         // requestIdGames[_requestId] = _result;
-
-        console.log("fulfillSchedule match status :%s,%s", _status, FINISH_END);
-        // 判断赛程是否已结束 "status": "Match Finished" "statusShort": "FT",
-        if (MATHCSTATUS[_status]) {
+        // 判断赛程是否已结束 _isFinish "status": "Match Finished" "statusShort": "FT",
+        if (_isFinish) {
             // 赛程结束更新赛程结果信息
             uint256 _matchId = metaBet.apiMatchId(_fixtureId);
 
@@ -171,15 +164,16 @@ contract MetaBetMatch is Context, Ownable, ChainlinkClient {
                 address(this),
                 this.fulfillSchedule.selector
             );
-            req.add(
-                "get",
-                string(
-                    abi.encodePacked(
-                        "https://api-football-v1.p.rapidapi.com/v2/",
-                        metaBet.matchResultLink(i)
-                    )
-                )
-            );
+            req.add("api", metaBet.matchResultLink(i));
+            // req.add(
+            //     "get",
+            //     string(
+            //         abi.encodePacked(
+            //             "https://api-football-v1.p.rapidapi.com/v2/",
+            //             metaBet.matchResultLink(i)
+            //         )
+            //     )
+            // );
             // Set the path to find the desired data in the API response, where the response format is:
             //  {
             //     "api": {
@@ -225,13 +219,11 @@ contract MetaBetMatch is Context, Ownable, ChainlinkClient {
             //             }
             //   }
             //  }
-            // request.add("path", "RAW.ETH.USD.VOLUME24HOUR"); // Chainlink nodes prior to 1.0.0 support this format
-            req.add("path", "api,fixtures,0,league_id"); // Chainlink nodes 1.0.0 and later support this format
-            req.add("path", "api,fixtures,0,fixture_id"); // Chainlink nodes 1.0.0 and later support this format
-            req.add("path", "api,fixtures,0,statusShort"); // Chainlink nodes 1.0.0 and later support this format
-            req.add("path", "api,fixtures,0,goalsHomeTeam"); // Chainlink nodes 1.0.0 and later support this format
-            req.add("path", "api,fixtures,0,goalsAwayTeam"); // Chainlink nodes 1.0.0 and later support this format
-
+            req.add("leagueId", "league_id"); // Chainlink nodes 1.0.0 and later support this format
+            req.add("fixtureId", "fixture_id"); // Chainlink nodes 1.0.0 and later support this format
+            req.add("statusShort", "statusShort"); // Chainlink nodes 1.0.0 and later support this format
+            req.add("goalsHomeTeam", "goalsHomeTeam"); // Chainlink nodes 1.0.0 and later support this format
+            req.add("goalsAwayTeam", "goalsAwayTeam"); // Chainlink nodes 1.0.0 and later support this format
             sendChainlinkRequest(req, LINK_PAYMENT);
         }
     }

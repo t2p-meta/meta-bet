@@ -385,6 +385,60 @@ async function requestSchedule() {
   console.log("deposit done");
 }
 
+/**
+ * 7. 查询第三方赛程信息（chainLink）
+ */
+async function matchResultLink(index) {
+  const accounts = await hre.ethers.getSigners();
+  let metabetMatch = new ethers.Contract(
+    metaBetMatchAddress,
+    metaBetMatchAbi,
+    accounts[0]
+  );
+
+  let metabetret = await metabetMatch.countMatchs(index);
+  console.log(metabetret, "metabetret");
+
+  console.log("deposit done");
+}
+
+/**
+ * 8. 查询第三方赛程信息（chainLink）
+ */
+async function countMatchs() {
+  const accounts = await hre.ethers.getSigners();
+  let metabetMatch = new ethers.Contract(
+    metaBetMatchAddress,
+    metaBetMatchAbi,
+    accounts[0]
+  );
+
+  let metabetret = await metabetMatch.countMatchs();
+  console.log(metabetret, "metabetret");
+
+  console.log("deposit done");
+}
+
+/**
+ * 9. withdrawLink
+ */
+async function withdrawLink(_amount, _payee) {
+  const accounts = await hre.ethers.getSigners();
+  let metabetMatch = new ethers.Contract(
+    metaBetMatchAddress,
+    metaBetMatchAbi,
+    accounts[0]
+  );
+let v = toWei(_amount);
+console.log(v, "metabetret v:");
+  let metabetret = await metabetMatch.withdrawLink(v,  _payee || accounts[0].address, {
+    gasLimit: BigNumber.from("8000000"),
+  });
+  console.log(metabetret, "metabetret");
+
+  console.log("deposit done");
+}
+
 async function view() {
   const accounts = await hre.ethers.getSigners();
 
@@ -475,13 +529,15 @@ let _matchId = 1;
 var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
 var metaBetAddress = "0x7B0112D503E508E21Dc10B7811f2e2A16D85035f"; //
 
-var metaBetMatchAddress = "0xbDd8C0dE328BB5E9a19E1D0a81a87De489d55754"; //
+var metaBetMatchAddress = "0x56b42ba638A98C93D7b4c4A36497109D5FFfee16"; // 0.9
+// var metaBetMatchAddress = "0xEAd6c0203C6759897863B8CE21a085dB189da5e2"; // 0.9
 
 let _linkToken = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB";
-let _oracle = "0x40193c8518BB267228Fc409a613bDbD8eC5a97b3";
+let _oracle = "0x62F09970A26d62C4beB702553A7372e5F93FCC54";
+let _job = "8c96e326-692b-45c3-83eb-d0d0dbe7bfc5";
 // 1.部署合约
 // deployMetaBet()
-// deployMetaBetMatch()
+deployMetaBetMatch()
 // 1-1 蓝钻充值
 // deposit()
 // deploySmartBet()
@@ -489,23 +545,25 @@ let _oracle = "0x40193c8518BB267228Fc409a613bDbD8eC5a97b3";
 // createLeague()
 // 2.创建世界杯押注项目
 // createMatch()
-  // 3.押注世界杯项目
+// 3.押注世界杯项目
 
-  // placeBet(1,_matchId) // draw 100
-  // placeBet(2,_matchId) // teamA 200
-  // placeBet(3,_matchId) // teamB 300
+// placeBet(1,_matchId) // draw 100
+// placeBet(2,_matchId) // teamA 200
+// placeBet(3,_matchId) // teamB 300
 
-  // startMatch(_matchId)
-  // closeMatch(_matchId)
-  // 9.查询余额
-  // view()
-  // 10.获取赛程押注信息
-  // getMatch()
-  // getSmartAsset(3)
-  // 提取押注金额
-  // type=1:4,type=2:5,type=3:6
-  // liquidateAsset(2,8)
-  requestSchedule()
+// startMatch(_matchId)
+// closeMatch(_matchId)
+// 9.查询余额
+// view()
+// 10.获取赛程押注信息
+// getMatch()
+// getSmartAsset(3)
+// 提取押注金额
+// type=1:4,type=2:5,type=3:6
+// liquidateAsset(2,8)
+// requestSchedule()
+// countMatchs(0)
+// withdrawLink(0.9)
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);
