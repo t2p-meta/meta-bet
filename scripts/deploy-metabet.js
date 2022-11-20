@@ -523,11 +523,24 @@ async function delay(sec) {
     setTimeout(resolve, sec * 1000);
   });
 }
+// ====================================================================================
 //matic
 let _leagueId = 1;
 let _matchId = 1;
-var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
-var metaBetAddress = "0x7B0112D503E508E21Dc10B7811f2e2A16D85035f"; //
+// var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
+// var metaBetAddress = "0x7B0112D503E508E21Dc10B7811f2e2A16D85035f"; //
+
+// var metaBetMatchAddress = "0x56b42ba638A98C93D7b4c4A36497109D5FFfee16"; // 0.9
+// // var metaBetMatchAddress = "0xEAd6c0203C6759897863B8CE21a085dB189da5e2"; // 0.9
+
+// let _linkToken = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB";
+// let _oracle = "0x62F09970A26d62C4beB702553A7372e5F93FCC54";
+// let _job = "8c96e326-692b-45c3-83eb-d0d0dbe7bfc5";
+
+// ====================================================================================
+
+var tokenAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // USDC-Polygon
+var metaBetAddress = "0xfE108De21563563a4148bA2Bd5a457C87c58D36C"; //
 
 var metaBetMatchAddress = "0x56b42ba638A98C93D7b4c4A36497109D5FFfee16"; // 0.9
 // var metaBetMatchAddress = "0xEAd6c0203C6759897863B8CE21a085dB189da5e2"; // 0.9
@@ -535,14 +548,16 @@ var metaBetMatchAddress = "0x56b42ba638A98C93D7b4c4A36497109D5FFfee16"; // 0.9
 let _linkToken = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB";
 let _oracle = "0x62F09970A26d62C4beB702553A7372e5F93FCC54";
 let _job = "8c96e326-692b-45c3-83eb-d0d0dbe7bfc5";
+
+
 // 1.部署合约
 // deployMetaBet()
-deployMetaBetMatch()
+// deployMetaBetMatch()
 // 1-1 蓝钻充值
 // deposit()
 // deploySmartBet()
 // 2.创建体育活动-世界杯押注项目
-// createLeague()
+createLeague()
 // 2.创建世界杯押注项目
 // createMatch()
 // 3.押注世界杯项目
