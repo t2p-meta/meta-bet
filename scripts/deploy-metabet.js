@@ -540,7 +540,7 @@ let _matchId = 1;
 // ====================================================================================
 
 var tokenAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // USDC-Polygon
-var metaBetAddress = "0xfE108De21563563a4148bA2Bd5a457C87c58D36C"; //
+var metaBetAddress = "0x2DDF91cf0188E899C16D289FAdc17A530511D4E3"; //
 
 var metaBetMatchAddress = "0x56b42ba638A98C93D7b4c4A36497109D5FFfee16"; // 0.9
 // var metaBetMatchAddress = "0xEAd6c0203C6759897863B8CE21a085dB189da5e2"; // 0.9

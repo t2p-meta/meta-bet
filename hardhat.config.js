@@ -97,41 +97,41 @@ module.exports = {
 	// 		]
 	// 	},
 	// 	// poligy
-		matic_mainnet: {
+	// 	matic_mainnet: {
+	// 		// url: 'https://rpc-mainnet.maticvigil.com/v1/6ca36da1323f40dc42d64ed9ba89da9a6f59c23d',
+	// 		// url: 'https://rpc-mainnet.matic.network',
+	// 		url: 'https://matic-mainnet.chainstacklabs.com',
+	// 		// url: 'https://rpc-mainnet.matic.quiknode.pro',
+	// 		// url: 'https://matic-mainnet-full-rpc.bwarelabs.com',
+	// 		// url: 'https://matic-mainnet-archive-rpc.bwarelabs.com',
+	// 		chainId: 137,
+	// 		from: process.env.DEDROPS_SERVER,
+	// 		accounts: [
+	// 			process.env.DEDROPS_PK,
+	// 			process.env.ETH_PK_1,
+	// 			process.env.ETH_PK_2
+	// 		]
+	// 	}
+		// poligy
+		poligy_testnet: {
 			// url: 'https://rpc-mainnet.maticvigil.com/v1/6ca36da1323f40dc42d64ed9ba89da9a6f59c23d',
 			// url: 'https://rpc-mainnet.matic.network',
-			url: 'https://matic-mainnet.chainstacklabs.com',
+			url: 'https://rpc-mumbai.maticvigil.com/',
 			// url: 'https://rpc-mainnet.matic.quiknode.pro',
 			// url: 'https://matic-mainnet-full-rpc.bwarelabs.com',
 			// url: 'https://matic-mainnet-archive-rpc.bwarelabs.com',
-			chainId: 137,
+			chainId: 80001,
 			from: process.env.DEDROPS_SERVER,
 			accounts: [
 				process.env.DEDROPS_PK,
 				process.env.ETH_PK_1,
-				process.env.ETH_PK_2
+				process.env.ETH_PK_2,
+				process.env.ETH_PK_3,
+				process.env.ETH_PK_4,
+				process.env.ETH_PK_5,
+				process.env.ETH_PK_6
 			]
-		}
-		// poligy
-		// poligy_testnet: {
-		// 	// url: 'https://rpc-mainnet.maticvigil.com/v1/6ca36da1323f40dc42d64ed9ba89da9a6f59c23d',
-		// 	// url: 'https://rpc-mainnet.matic.network',
-		// 	url: 'https://rpc-mumbai.maticvigil.com/',
-		// 	// url: 'https://rpc-mainnet.matic.quiknode.pro',
-		// 	// url: 'https://matic-mainnet-full-rpc.bwarelabs.com',
-		// 	// url: 'https://matic-mainnet-archive-rpc.bwarelabs.com',
-		// 	chainId: 80001,
-		// 	from: process.env.DEDROPS_SERVER,
-		// 	accounts: [
-		// 		process.env.DEDROPS_PK,
-		// 		process.env.ETH_PK_1,
-		// 		process.env.ETH_PK_2,
-		// 		process.env.ETH_PK_3,
-		// 		process.env.ETH_PK_4,
-		// 		process.env.ETH_PK_5,
-		// 		process.env.ETH_PK_6
-		// 	]
-		// },
+		},
 		// Aurora Network
 		// aurora_testnet: {
 		// 	url: 'https://testnet.aurora.dev/',
