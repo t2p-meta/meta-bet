@@ -77,7 +77,6 @@ contract MetaBet is
         erc20Token = IERC20(_erc20Token);
         addToken(_erc20Token);
         addSigner(_msgSender(), Role.OPERATOR);
-        console.log("deploy ..... contract meta bet...");
     }
 
     ////////////////////////////////////////
@@ -313,7 +312,7 @@ contract MetaBet is
     function placeBet(
         uint256 _matchId,
         uint8 _resultBetOn,
-        PayAsset calldata _payAsset
+        PayAsset memory _payAsset
     )
         public
         payable
@@ -324,7 +323,6 @@ contract MetaBet is
         validateMatchResult(_resultBetOn)
         returns (uint256)
     {
-        uint256 amountBet = msg.value;
         if (
             _payAsset.assetType != AssetType.ETH &&
             _payAsset.assetType != AssetType.ERC20 &&
@@ -344,17 +342,18 @@ contract MetaBet is
             return 0;
         }
         if (_payAsset.assetType == AssetType.ETH) {
-            require(amountBet != 0, "Invalid amount bet");
-            payable(address(this)).transfer(amountBet);
-        }
-        if (_payAsset.assetType == AssetType.ERC20) {
-            amountBet = _payAsset.payAmount;
-            require(amountBet != 0, "Invalid amount bet");
+            require(
+                _payAsset.payAmount == msg.value && _payAsset.payAmount != 0,
+                "Invalid amount bet"
+            );
+            payable(address(this)).transfer(_payAsset.payAmount);
+        } else if (_payAsset.assetType == AssetType.ERC20) {
+            require(_payAsset.payAmount != 0, "Invalid amount bet");
             require(
                 IERC20(_payAsset.payToken).transferFrom(
                     _msgSender(),
                     address(this),
-                    amountBet
+                    _payAsset.payAmount
                 )
             );
         }
@@ -363,15 +362,15 @@ contract MetaBet is
         if (matchResultBetOn == MatchResult.TEAM_A_WON) {
             matches[_matchId].totalPayoutTeamA = matches[_matchId]
                 .totalPayoutTeamA
-                .add(amountBet);
+                .add(_payAsset.payAmount);
         } else if (matchResultBetOn == MatchResult.TEAM_B_WON) {
             matches[_matchId].totalPayoutTeamB = matches[_matchId]
                 .totalPayoutTeamB
-                .add(amountBet);
+                .add(_payAsset.payAmount);
         } else {
             matches[_matchId].totalPayoutDraw = matches[_matchId]
                 .totalPayoutDraw
-                .add(amountBet);
+                .add(_payAsset.payAmount);
         }
 
         RealTimeAmount memory realTimeAmount = RealTimeAmount(
@@ -396,23 +395,72 @@ contract MetaBet is
         // 更新押注ID
         matches[_matchId].finalAssetId = smartAssetId;
 
-        emitBetPlacedEvent(_matchId, matchResultBetOn, _payAsset, amountBet);
+        emitBetPlacedEvent(_msgSender(), _matchId, matchResultBetOn, _payAsset);
 
         return smartAssetId;
     }
 
+    /**
+     *  @notice  New bet creation. Mint NFT to bettor
+     *  @dev
+     *  @param
+     */
+    function placeBetMatch(
+        bytes32 _hashId,
+        uint256 _matchId,
+        // 比赛参与方信息：(主场):(客场):(次场)
+        string calldata _matchTeamName,
+        // 押注team队名称
+        string calldata _betTeamName,
+        // 押注金额
+        uint256 _payAmount,
+        // 押注用户Code
+        uint256 _userCode,
+        // 最终赢率（含本金） finalOdds
+        uint256 _finalOdds
+    )
+        public
+        onlyOwner
+        matchExists(_matchId)
+        matchNotStarted(_matchId)
+        isBetAllowed(_matchId)
+    {
+        placeBetInfoByHash[_hashId] = PlaceBetInfo(
+            _msgSender(),
+            _hashId,
+            _matchId,
+            _matchTeamName,
+            _betTeamName,
+            _payAmount,
+            _userCode,
+            block.timestamp,
+            _finalOdds
+        );
+        emit PlaceBetMatchEvent(
+            _msgSender(),
+            _hashId,
+            _matchId,
+            _matchTeamName,
+            _betTeamName,
+            _payAmount,
+            _userCode,
+            block.timestamp,
+            _finalOdds
+        );
+    }
+
     function emitBetPlacedEvent(
+        address _bettor,
         uint256 _matchId,
         MatchResult _matchResultBetOn,
-        PayAsset calldata _payAsset,
-        uint256 _amountBet
+        PayAsset memory _payAsset
     ) internal {
         emit BetPlacedEvent(
-            _msgSender(),
+            _bettor,
             matches[_matchId].leagueId,
             _matchId,
             _matchResultBetOn,
-            _amountBet,
+            _payAsset.payAmount,
             block.timestamp,
             _payAsset.assetType,
             _payAsset.payToken
@@ -469,6 +517,8 @@ contract MetaBet is
             betTeamName = matches[_matchId].matchInfo.teamAName;
         } else if (_matchResultBetOn == MatchResult.TEAM_B_WON) {
             betTeamName = matches[_matchId].matchInfo.teamBName;
+        } else if (_matchResultBetOn == MatchResult.DRAW) {
+            betTeamName = matches[_matchId].matchInfo.drawName;
         }
 
         smartAssets[smartAssetId] = SmartAsset(
@@ -485,6 +535,7 @@ contract MetaBet is
             0, // withdraw_timestamp提取时间
             betTeamName
         );
+
         assetCount = assetCount + 1;
         emit SmartAssetAwardedEvent(
             _bettor,
@@ -667,7 +718,6 @@ contract MetaBet is
         isTokenOwner(_smartAssetId)
         returns (bool)
     {
-        console.log("<<<<<<<<<<<liquidateAsset=======: '%s'", _smartAssetId);
         SmartAsset memory smartAsset = smartAssets[_smartAssetId];
         require(
             matches[smartAsset.matchId].state == MatchState.FINISHED,
@@ -677,25 +727,15 @@ contract MetaBet is
         MatchResult matchResult = matches[smartAsset.matchId].result;
 
         uint256 lastWinValue = smartAsset.betInfo.payAmount;
-        console.log(
-            "Match totalPayoutTeamA: '%s' totalPayoutTeamB: '%s' totalPayoutDraw: '%s'",
-            matches[smartAsset.matchId].totalPayoutTeamA,
-            matches[smartAsset.matchId].totalPayoutTeamB,
-            matches[smartAsset.matchId].totalPayoutDraw
-        );
-        console.log("liquidateAsset lastWinValue: '%s'", lastWinValue);
         // 提取赢得的押注资产
         if (matchResult == smartAsset.matchResult) {
             // 获取最终赔率
             uint256 lastBetOdds = matches[smartAsset.matchId].finalOdds;
-            console.log("liquidateAsset lastBetOdds: '%s'", lastBetOdds);
             // 计算最终获取金额
             lastWinValue = lastWinValue.mul(lastBetOdds).div(
                 100000000000000000
             );
         }
-
-        console.log("liquidateAsset lastWinValue1: '%s'", lastWinValue);
         // 手续费金额
         uint256 feesAmount = lastWinValue
             .mul(matches[smartAsset.matchId].matchInfo.winnerFeeRate)
@@ -703,13 +743,6 @@ contract MetaBet is
         // withdraw_到手提款金额
         uint256 withdrawAmount = lastWinValue.sub(feesAmount);
         // 判断是否存在小于0.01的尾数
-
-        console.log(
-            "liquidateAsset feesAmount: '%s',withdrawAmount: '%s', winnerFeeRate: '%s'",
-            feesAmount,
-            withdrawAmount,
-            matches[smartAsset.matchId].matchInfo.winnerFeeRate
-        );
         if (smartAsset.betInfo.assetType == AssetType.ETH) {
             uint256 smartBalance = address(this).balance;
             require(
@@ -723,11 +756,6 @@ contract MetaBet is
             require(!retryAttach, "this contract attack !!");
             retryAttach = true;
             // 用户提款
-            console.log(
-                "liquidateAsset feesAmount eth: '%s',withdrawAmount: '%s'",
-                feesAmount,
-                withdrawAmount
-            );
             payable(_msgSender()).transfer(withdrawAmount);
             // 给比赛发起者转账佣金
             payable(matches[smartAsset.matchId].creator).transfer(feesAmount);
@@ -736,7 +764,6 @@ contract MetaBet is
         if (smartAsset.betInfo.assetType == AssetType.ERC20) {
             uint256 smartBalance = IERC20(smartAsset.betInfo.payToken)
                 .balanceOf(address(this));
-            console.log("liquidateAsset 111");
             require(
                 smartBalance >= smartAsset.betInfo.payAmount,
                 "Contract has Token insufficient funds"
@@ -744,11 +771,6 @@ contract MetaBet is
             if (smartBalance < lastWinValue) {
                 lastWinValue = smartBalance;
             }
-
-            console.log(
-                "liquidateAsset Contract has Token: '%s'",
-                IERC20(smartAsset.betInfo.payToken).balanceOf(address(this))
-            );
             invalidateAsset(_smartAssetId);
             // 用户提款
             require(
@@ -766,7 +788,6 @@ contract MetaBet is
             );
         }
 
-        console.log("liquidateAsset 333");
         //totalCollected; 每取一笔更新对账结果
         matches[smartAsset.matchId].totalWithDraw = matches[smartAsset.matchId]
             .totalWithDraw
@@ -872,14 +893,6 @@ contract MetaBet is
         return _msgSender() == owner();
     }
 
-    /*
-     *  @notice  Allows the current owner pass ownership to another address
-     *  @dev
-     */
-    function changeOwner(address newOwner) external onlyOwner {
-        transferOwnership(newOwner);
-    }
-
     /**
      * @dev See {IERC721-ownerOf}.
      */
@@ -923,12 +936,6 @@ contract MetaBet is
             uint256 balance = IERC20(tokens[i]).balanceOf(address(this));
             if (balance > 0) {
                 require(IERC20(tokens[i]).transfer(_msgSender(), balance));
-                console.log(
-                    "owner['%s'] withdrawToken: '%s',balance: '%s'",
-                    _msgSender(),
-                    tokens[i],
-                    balance
-                );
             }
         }
         uint256 smartBalance = address(this).balance;
@@ -937,11 +944,6 @@ contract MetaBet is
             retryAttach = true;
             payable(_msgSender()).transfer(smartBalance);
             retryAttach = false;
-            console.log(
-                "owner['%s'] withdrawToken eth balance: '%s'",
-                _msgSender(),
-                smartBalance
-            );
         }
     }
 
@@ -1007,6 +1009,20 @@ contract MetaBet is
         returns (uint256)
     {
         return apiMatches[_fixtureId];
+    }
+
+    /**
+     * @dev _hashId
+     * @return info
+     */
+    function getPlaceBetInfo(bytes32 _hashId)
+        public
+        view
+        virtual
+        override
+        returns (PlaceBetInfo memory info)
+    {
+        return placeBetInfoByHash[_hashId];
     }
 
     /**

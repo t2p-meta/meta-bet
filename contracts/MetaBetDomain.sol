@@ -22,6 +22,9 @@ abstract contract MetaBetDomain {
     // 同一个赛程Id可能从不同的网站获取赔率
     mapping(uint256 => uint256) apiMatches;
 
+    // 用户押注
+    mapping(bytes32 => PlaceBetInfo) placeBetInfoByHash;
+
     enum Role {
         ADMIN,
         CREATOR,
@@ -33,7 +36,8 @@ abstract contract MetaBetDomain {
         ERC20,
         ERC1155,
         ERC721,
-        ERC721Deprecated
+        ERC721Deprecated,
+        Chip
     }
 
     enum MatchResult {
@@ -181,6 +185,30 @@ abstract contract MetaBetDomain {
         uint256 totalPayoutTeamB;
         // 实时押注时间节点累计总金额：O
         uint256 totalPayoutDraw;
+    }
+
+    /**
+     *押注信息详情
+     */
+    struct PlaceBetInfo {
+        // 押注者
+        address bettor;
+        // 唯一识别码
+        bytes32 hashId;
+        // 赛程ID
+        uint256 matchId;
+        // 比赛参与方信息：(主场):(客场):(次场)
+        string matchTeamName;
+        // 押注team队名称
+        string betTeamName;
+        // 押注金额
+        uint256 payAmount;
+        // 押注用户Code
+        uint256 userCode;
+        // bet_timestamp :下注时间
+        uint256 betTimestamp;
+        // 最终赢率（含本金） finalOdds
+        uint256 finalOdds;
     }
 
     ////////////////////////////////////////

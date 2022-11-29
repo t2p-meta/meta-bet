@@ -18,13 +18,12 @@ describe("Metabet-test===>>>>", function () {
   let owner;
   let _leagueId = 1;
   let _matchId = 1;
-  
-  
+
   // address _erc20Token,
   // address _link,
   // address _oracle
-  let _linkToken = '0x326C977E6efc84E512bB9C30f76E30c160eD06FB';
-  let _oracle = '0x40193c8518BB267228Fc409a613bDbD8eC5a97b3';
+  let _linkToken = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB";
+  let _oracle = "0x40193c8518BB267228Fc409a613bDbD8eC5a97b3";
 
   before(async function () {
     accounts = await ethers.getSigners();
@@ -76,22 +75,23 @@ describe("Metabet-test===>>>>", function () {
    */
   it("Deployment Metabet", async function () {
     const _bet = await ethers.getContractFactory("MetaBet");
-    metabet = await _bet.deploy(metatoken.address);
+    metabet = await _bet.deploy(metatoken.address, {
+      gasLimit: BigNumber.from("8000000"),
+    });
     // metaBetAddress = metabet.address;
     console.log("Deployment metabet:............:", metabet.address);
   });
 
-    /**
+  /**
    * 1.部署Metabet合约
    */
-     it("Deployment MetabetMatch", async function () {
-      const _bet = await ethers.getContractFactory("MetaBetMatch");
-      metabetmatch = await _bet.deploy(metabet.address,_linkToken,_oracle);
-      // metaBetAddress = metabet.address;
-      console.log("Deployment metabetmatch:............:", metabetmatch.address);
-    });
+  it("Deployment MetabetMatch", async function () {
+    const _bet = await ethers.getContractFactory("MetaBetMatch");
+    metabetmatch = await _bet.deploy(metabet.address, _linkToken, _oracle);
+    // metaBetAddress = metabet.address;
+    console.log("Deployment metabetmatch:............:", metabetmatch.address);
+  });
 
-    
   /**
    * 2. 创建世界杯比赛League
    */
@@ -192,10 +192,11 @@ describe("Metabet-test===>>>>", function () {
   /**
    * 3.-1 押注世界杯比赛
    */
-  it("placeBet draw", async function () {
+  it("placeBet =====", async function () {
     await placeBet(1, _matchId); //1 draw 100
     await placeBet(2, _matchId); //2 teamA 200 //
     await placeBet(3, _matchId); //3 teamB 300
+    await placeBetMatch(0, _matchId); //3 teamB 300
   });
 
   /**
@@ -423,13 +424,12 @@ describe("Metabet-test===>>>>", function () {
     console.log(metabetret, "getMatchSmartAssetInfo");
   });
 
-  it("owner requestSchedule", async function () {
-  
-    let metabetret = await metabetmatch.requestSchedule({
-      gasLimit: BigNumber.from("8000000"),
-    });
-    console.log(metabetret, "metabetret");
-  });
+  // it("owner requestSchedule", async function () {
+  //   let metabetret = await metabetmatch.requestSchedule({
+  //     gasLimit: BigNumber.from("8000000"),
+  //   });
+  //   console.log(metabetret, "metabetret");
+  // });
 
   async function placeBet(type) {
     let indexAccount = type;
@@ -484,6 +484,7 @@ describe("Metabet-test===>>>>", function () {
       assetType: 1,
       payToken: token.address,
       payAmount: totalOdds,
+      userCode: 0,
     };
     //   function placeBet(
     //     uint256 _matchId,
@@ -512,6 +513,119 @@ describe("Metabet-test===>>>>", function () {
     console.log(metabetret, "placeBet metabetret");
 
     console.log("placeBet deposit done");
+  }
+
+  async function placeBetMatch(type) {
+    let indexAccount = type;
+    let token = metatoken;
+    // let token = new ethers.Contract(
+    //   tokenAddress,
+    //   tokenAbi,
+    //   accounts[indexAccount]
+    // );
+    // let metabet = new ethers.Contract(
+    //   metaBetAddress,
+    //   metaBetAbi,
+    //   accounts[indexAccount]
+    // );
+
+    // let _matchId = 1;
+    /**
+      enum MatchResult {
+          NOT_DETERMINED,
+          DRAW,
+          TEAM_A_WON,
+          TEAM_B_WON
+      }
+     */
+    let resultBetOn = 0;
+    let DRAW_resultBetOn = 1;
+    let TEAM_A_WON_resultBetOn = 2;
+    let TEAM_B_WON_resultBetOn = 3;
+
+    let initOdds = 0;
+    if (type == 1) {
+      initOdds = 100;
+      resultBetOn = DRAW_resultBetOn;
+    } else if (type == 2) {
+      initOdds = 200;
+      resultBetOn = TEAM_A_WON_resultBetOn;
+    } else if (type == 3) {
+      initOdds = 300;
+      resultBetOn = TEAM_B_WON_resultBetOn;
+    } else {
+      initOdds = 400;
+      resultBetOn = TEAM_B_WON_resultBetOn;
+    }
+
+    /**
+      struct PayAsset {
+          AssetType assetType;
+          address payToken;
+          uint256 payValue;
+      }
+      }
+     */
+    let totalOdds = toWei(initOdds);
+    //   function placeBetMatch(
+    // bytes32 _hashId,
+    // uint256 _matchId,
+    // // 比赛参与方信息：(主场):(客场):(次场)
+    // string calldata _matchTeamName,
+    // // 押注team队名称
+    // string calldata _betTeamName,
+    // // 押注金额
+    // uint256 _payAmount,
+    // // 押注用户Code
+    // uint256 _userCode,
+    // // 最终赢率（含本金） finalOdds
+    // uint256 _finalOdds
+    // )
+
+    let _hashId = utils.keccak256(utils.toUtf8Bytes("1"));
+    let _matchTeamName = "(Home)Baxi:(Away)Agentine";
+    let _betTeamName = "Draw";
+    let _payAmount = totalOdds;
+    let _userCode = "10001";
+    let finalOdds = "50";
+
+    const amount = toWei(0);
+
+    console.log(
+      "placeBet++++:::",
+      _hashId,
+      _matchId,
+      _matchTeamName,
+      _betTeamName,
+      _payAmount,
+      _userCode,
+      finalOdds
+    );
+    let metabetret = await metabet
+      .connect(accounts[indexAccount])
+      .placeBetMatch(
+        _hashId,
+        _matchId,
+        _matchTeamName,
+        _betTeamName,
+        _payAmount,
+        _userCode,
+        finalOdds,
+        {
+          value: 0,
+          gasLimit: BigNumber.from("8000000"),
+        }
+      );
+    console.log(metabetret, "placeBet metabetret");
+
+    let placeBetInfo = await metabet
+      .connect(accounts[indexAccount])
+      .getPlaceBetInfo(_hashId, {
+        value: 0,
+        gasLimit: BigNumber.from("8000000"),
+      });
+
+    console.log("placeBet deposit done", placeBetInfo);
   }
 
   async function view() {

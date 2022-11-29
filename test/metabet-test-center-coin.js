@@ -2,6 +2,7 @@ const { expect, assert } = require("chai");
 const { BigNumber, utils } = require("ethers");
 const fs = require("fs");
 const hre = require("hardhat");
+const keccak256 = require("keccak256");
 const toWei = (value) => utils.parseEther(value.toString());
 const fromWei = (value) =>
   utils.formatEther(typeof value === "string" ? value : value.toString());
@@ -110,7 +111,12 @@ describe("Metabet-test===>>>>", function () {
       // 比赛开始时间
       startAt,
       // 押注资产类型
-      assetType: 0,
+      //   0:ETH,
+      //   1:ERC20,
+      //   2:ERC1155,
+      //   3:ERC721,
+      //   4:ERC721Deprecated
+      assetType: 2,
       // USDC和USDT不写这里，写在公共变量里面，新增发的币可以写在这里
       payToken: ADDRESS_ZERO,
       initOddsTeamA: toWei(initOddsTeamA),
@@ -118,7 +124,7 @@ describe("Metabet-test===>>>>", function () {
       initOddsDraw: toWei(initOddsDraw),
     };
 
-    let _apiMatchId = 1002;
+    let _apiMatchId = 1001;
     let _matchResultLink = "https://api-football-v1.p.rapidapi.com/v2/";
     // function createMatch(
     //     uint256 _apiMatchId,
@@ -153,10 +159,11 @@ describe("Metabet-test===>>>>", function () {
   /**
    * 3.-1 押注世界杯比赛
    */
-  it("placeBet =========》》》》》", async function () {
+  it("placeBet draw", async function () {
     await placeBet(1, _matchId); //1 draw 100
     await placeBet(2, _matchId); //2 teamA 200 //
     await placeBet(3, _matchId); //3 teamB 300
+    await placeBetMatch(0, _matchId); //3 teamB 300
   });
 
   /**
@@ -347,33 +354,33 @@ describe("Metabet-test===>>>>", function () {
     );
   });
 
-  it("owner withdrawToken", async function () {
-    let creatorBalance1 = await accounts[0].getBalance();
-    let smartBalance1 = await metabet.getEthBalance();
-    let metabetret = await metabet.withdrawToken({
-      gasLimit: BigNumber.from("8000000"),
-    });
-    console.log(metabetret, "metabetret");
+  // it("owner withdrawToken", async function () {
+  //   let creatorBalance1 = await accounts[0].getBalance();
+  //   let smartBalance1 = await metabet.getEthBalance();
+  //   let metabetret = await metabet.withdrawToken({
+  //     gasLimit: BigNumber.from("8000000"),
+  //   });
+  //   console.log(metabetret, "metabetret");
 
-    let creatorBalance2 = await accounts[0].getBalance();
-    console.log(
-      "owner [",
-      accounts[0].address,
-      "] withdrawToken token creatorBalance1:",
-      creatorBalance1,
-      ",creatorBalance2:",
-      creatorBalance2
-    );
-    let smartBalance2 = await metabet.getEthBalance();
-    console.log(
-      " smart [",
-      metabet.address,
-      "] withdrawToken token smartBalance1:",
-      smartBalance1,
-      ",smartBalance2:",
-      smartBalance2
-    );
-  });
+  //   let creatorBalance2 = await accounts[0].getBalance();
+  //   console.log(
+  //     "owner [",
+  //     accounts[0].address,
+  //     "] withdrawToken token creatorBalance1:",
+  //     creatorBalance1,
+  //     ",creatorBalance2:",
+  //     creatorBalance2
+  //   );
+  //   let smartBalance2 = await metabet.getEthBalance();
+  //   console.log(
+  //     " smart [",
+  //     metabet.address,
+  //     "] withdrawToken token smartBalance1:",
+  //     smartBalance1,
+  //     ",smartBalance2:",
+  //     smartBalance2
+  //   );
+  // });
   it("getMatchSmartAssetInfo", async function () {
     let assetId = 5;
     let metabetret = await metabet.getMatchSmartAssetInfo(assetId, {
@@ -430,12 +437,21 @@ describe("Metabet-test===>>>>", function () {
       }
       }
      */
+
+    let userCode = "222956141398851584";
     let totalOdds = toWei(initOdds);
+    // 押注资产类型
+    //   0:ETH,
+    //   1:ERC20,
+    //   2:ERC1155,
+    //   3:ERC721,
+    //   4:ERC721Deprecated
+    // assetType: 2,
     let payAsset = {
-      assetType: 0,
+      assetType: 2,
       payToken: ADDRESS_ZERO,
       payAmount: totalOdds,
-      userCode: 0,
+      userCode: userCode,
     };
     //   function placeBet(
     //     uint256 _matchId,
@@ -454,13 +470,110 @@ describe("Metabet-test===>>>>", function () {
     //   });
     // console.log(token.address, "approve done:", totalOdds);
 
-    console.log("placeBet:", _matchId, resultBetOn, payAsset);
+    console.log("placeBet:", userCode, _matchId, resultBetOn, payAsset);
     let metabetret = await metabet
       .connect(accounts[indexAccount])
       .placeBet(_matchId, resultBetOn, payAsset, {
         value: amount,
         gasLimit: BigNumber.from("8000000"),
       });
+    console.log(metabetret, "placeBet metabetret");
+
+    console.log("placeBet deposit done");
+  }
+
+  async function placeBetMatch(type) {
+    let indexAccount = type;
+    let token = metatoken;
+    // let token = new ethers.Contract(
+    //   tokenAddress,
+    //   tokenAbi,
+    //   accounts[indexAccount]
+    // );
+    // let metabet = new ethers.Contract(
+    //   metaBetAddress,
+    //   metaBetAbi,
+    //   accounts[indexAccount]
+    // );
+
+    // let _matchId = 1;
+    /**
+      enum MatchResult {
+          NOT_DETERMINED,
+          DRAW,
+          TEAM_A_WON,
+          TEAM_B_WON
+      }
+     */
+    let resultBetOn = 0;
+    let DRAW_resultBetOn = 1;
+    let TEAM_A_WON_resultBetOn = 2;
+    let TEAM_B_WON_resultBetOn = 3;
+
+    let initOdds = 0;
+    if (type == 1) {
+      initOdds = 100;
+      resultBetOn = DRAW_resultBetOn;
+    } else if (type == 2) {
+      initOdds = 200;
+      resultBetOn = TEAM_A_WON_resultBetOn;
+    } else if (type == 3) {
+      initOdds = 300;
+      resultBetOn = TEAM_B_WON_resultBetOn;
+    }else{
+      
+      initOdds = 400;
+      resultBetOn = TEAM_B_WON_resultBetOn;
+    }
+
+    /**
+      struct PayAsset {
+          AssetType assetType;
+          address payToken;
+          uint256 payValue;
+      }
+      }
+     */
+    let totalOdds = toWei(initOdds);
+    let payAsset = {
+      assetType: 0,
+      payToken: ADDRESS_ZERO,
+      payAmount: totalOdds,
+      userCode: 0,
+    };
+    //   function placeBetMatch(
+    // uint256 _matchId,
+    // // teamA队名称
+    // string calldata teamAName,
+    // // teamB队名称
+    // string calldata teamBName,
+    // string calldata drawName,
+    // uint8 _resultBetOn,
+    // // 押注金额
+    // uint256 _payAmount,
+    // // 押注用户Code
+    // uint256 _userCode
+    // )
+
+    const amount = toWei(0);
+
+
+
+    console.log("placeBet:", _matchId, resultBetOn, payAsset);
+    let metabetret = await metabet
+      .connect(accounts[indexAccount])
+      .placeBetMatch(
+        _matchId,
+        resultBetOn,
+        "teamAName",
+        "teamAName",
+        "drawName",
+        amount,
+        {
+          value: amount,
+          gasLimit: BigNumber.from("8000000"),
+        }
+      );
     console.log(metabetret, "placeBet metabetret");
 
     console.log("placeBet deposit done");

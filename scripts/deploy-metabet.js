@@ -33,10 +33,10 @@ async function deploySmartBet() {
  * 1. 部署合约
  */
 async function deployMetaBet() {
-  // const accounts = await hre.ethers.getSigners();
+  const accounts = await hre.ethers.getSigners();
   // let token = new ethers.Contract(tokenAddress, tokenAbi, accounts[0]);
   // let tbalance = await token.balanceOf(accounts[0].address);
-  // console.log(accounts[0].address, " balance:", await accounts[0].getBalance());
+  console.log(accounts[0].address, " balance:", await accounts[0].getBalance());
   // console.log(accounts[0].address, "token balance:", tbalance);
 
   const _MetaBet = await ethers.getContractFactory("MetaBet");
@@ -527,8 +527,8 @@ async function delay(sec) {
 //matic
 let _leagueId = 1;
 let _matchId = 1;
-// var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
-// var metaBetAddress = "0x7B0112D503E508E21Dc10B7811f2e2A16D85035f"; //
+var tokenAddress = "0x444838C1f0a0e86114DE6d481c5dde98c4ba75FD";
+var metaBetAddress = "0x66BC496508B4A83909e9eb57a5EfA361b5D25b40"; //
 
 // var metaBetMatchAddress = "0x56b42ba638A98C93D7b4c4A36497109D5FFfee16"; // 0.9
 // // var metaBetMatchAddress = "0xEAd6c0203C6759897863B8CE21a085dB189da5e2"; // 0.9
@@ -539,8 +539,13 @@ let _matchId = 1;
 
 // ====================================================================================
 
-var tokenAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // USDC-Polygon
-var metaBetAddress = "0x2DDF91cf0188E899C16D289FAdc17A530511D4E3"; //
+// var tokenAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // USDC-Polygon
+// var metaBetAddress = "0x2DDF91cf0188E899C16D289FAdc17A530511D4E3"; //
+
+
+// var tokenAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // USDC-trust
+// var metaBetAddress = "0xa186F1ceF8c271713C4A702E8d2806b18293621F"; //
+
 
 var metaBetMatchAddress = "0x56b42ba638A98C93D7b4c4A36497109D5FFfee16"; // 0.9
 // var metaBetMatchAddress = "0xEAd6c0203C6759897863B8CE21a085dB189da5e2"; // 0.9

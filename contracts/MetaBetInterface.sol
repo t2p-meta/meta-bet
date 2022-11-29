@@ -46,6 +46,25 @@ interface MetaBetInterface {
         MetaBetDomain.AssetType assetType,
         address payToken
     );
+
+    event PlaceBetMatchEvent(
+        address indexed bettor,
+        bytes32 indexed hashId,
+        uint256 indexed matchId,
+        // 比赛参与方信息：(主场):(客场):(次场)
+        string matchTeamName,
+        // 押注team队名称
+        string betTeamName,
+        // 押注金额
+        uint256 payAmount,
+        // 押注用户Code
+        uint256 userCode,
+        // bet_timestamp :下注时间
+        uint256 betTimestamp,
+        // 最终赢率（含本金） finalOdds
+        uint256 finalOdds
+    );
+
     event SmartAssetAwardedEvent(
         address indexed awardee,
         uint256 indexed leagueId,
@@ -87,6 +106,15 @@ interface MetaBetInterface {
         MetaBetDomain.AssetType assetType,
         address payToken
     );
+
+    /**
+     * @dev usercode
+     * @return info
+     */
+    function getPlaceBetInfo(bytes32 _hashId)
+        external
+        view
+        returns (MetaBetDomain.PlaceBetInfo memory info);
 
     /**
      * @dev apiMatchId
