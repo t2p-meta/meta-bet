@@ -1,5 +1,6 @@
 require('dotenv').config()
 const privatekey = process.env.DEDROPS_PK
+const privatekeyPro = process.env.DEDROPS_PK_PRO
 
 // module.exports = {
 //   privateKey: privatekey,
@@ -12,16 +13,16 @@ const privatekey = process.env.DEDROPS_PK
 //   beneficiary: "0x98370b1e5335BBc1382A4858ae15a989668142b1", // 收取手续费钱包地址
 //   buyerFeeSigner: "0xb450f1292110192994f5C88250a34897D7AC5CE3", // 交易授权签名钱包地址
 // }
-// module.exports = {
-//   privateKey: privatekey,
-//   apiUrl: "https://polygon-rpc.com/",
-//   chainId: 137,
-//   NFTName: "Planet2nd",
-//   BoxNFTName: "Planet2ndBox",
-//   miner: "0x427906aE4E7b2b3c0C8A3156247BFabd62685Db8",
-//   beneficiary: "0x1D06B226Bc315FeAD4F41f70eC5e79De3a51a8F3",
-//   buyerFeeSigner: "0x972EB49778d141fEdD58757d4b6079022eff757F",
-// }
+module.exports = {
+  privateKey: privatekeyPro,
+  apiUrl: "https://polygon-rpc.com/",
+  chainId: 137,
+  NFTName: "Planet2nd",
+  BoxNFTName: "Planet2ndBox",
+  miner: "0x427906aE4E7b2b3c0C8A3156247BFabd62685Db8",
+  beneficiary: "0x1D06B226Bc315FeAD4F41f70eC5e79De3a51a8F3",
+  buyerFeeSigner: "0x972EB49778d141fEdD58757d4b6079022eff757F",
+}
 // polygon测试
 // module.exports = {
 //   privateKey: privatekey,
@@ -81,17 +82,17 @@ const privatekey = process.env.DEDROPS_PK
 // }
 
 // Trust EVM Testnet
-module.exports = {
-  privateKey: privatekey,
-  apiUrl: "https://api.testnet-dev.trust.one",
-  chainId: 15555,
-  NFTName: "Planet2ndMain",
-  BoxNFTName: "Planet2ndBox",
-  miner: "0x671de58Bd1EDE160c5D46Ba853A5fB157541E4eB",
-  beneficiary: "0x98370b1e5335BBc1382A4858ae15a989668142b1",
-  buyerFeeSigner: "0xb450f1292110192994f5C88250a34897D7AC5CE3",
-  gas: '10000000',
-}
+// module.exports = {
+//   privateKey: privatekey,
+//   apiUrl: "https://api.testnet-dev.trust.one",
+//   chainId: 15555,
+//   NFTName: "Planet2ndMain",
+//   BoxNFTName: "Planet2ndBox",
+//   miner: "0x671de58Bd1EDE160c5D46Ba853A5fB157541E4eB",
+//   beneficiary: "0x98370b1e5335BBc1382A4858ae15a989668142b1",
+//   buyerFeeSigner: "0xb450f1292110192994f5C88250a34897D7AC5CE3",
+//   gas: '10000000',
+// }
 
 // BTTC Donau测试网
 // module.exports = {

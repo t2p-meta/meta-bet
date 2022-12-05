@@ -19,6 +19,12 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.js
+
+npx hardhat verify --contract contracts/Greeter2.sol:YourToken  --network tbsc 0x915D4D9aEe18F4c22ab6e2dA51aD9473E4b929B3 
+
+npx hardhat verify --contract contracts/MetaPlaceBet.sol:MetaPlaceBet --network matic_mainnet 0xf012fae73d8fDee24BC6fC2B53F4dc5fc28c412
+https://polygonscan.com/address/0xf012fae73d8fDee24BC6fC2B53F4dc5fc28c412e#code
+
 ```
 
 

@@ -418,13 +418,7 @@ contract MetaBet is
         uint256 _userCode,
         // 最终赢率（含本金） finalOdds
         uint256 _finalOdds
-    )
-        public
-        onlyOwner
-        matchExists(_matchId)
-        matchNotStarted(_matchId)
-        isBetAllowed(_matchId)
-    {
+    ) public onlyOwner {
         placeBetInfoByHash[_hashId] = PlaceBetInfo(
             _msgSender(),
             _hashId,

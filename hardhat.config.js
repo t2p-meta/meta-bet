@@ -1,5 +1,7 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
+
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -19,10 +21,20 @@ task("accounts", "Prints the list of accounts", async () => {
  */
 module.exports = {
   defaultNetwork: "hardhat",
+  contractSizer: {
+    alphaSort: true,
+    runOnCompile: true,
+    disambiguatePaths: false,
+  },
+  etherscan: {
+    // etherscan:
+    // bscscan:
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
   networks: {
-    hardhat: { 
+    hardhat: {
       // allowUnlimitedContractSize: true
-     },
+    },
     // ethtestaliyun: {
     // 	url: 'http://8.140.129.110:8545',
     // 	chainId: 8889,
@@ -97,21 +109,21 @@ module.exports = {
     // 		]
     // 	},
     // 	// poligy
-    // 	matic_mainnet: {
-    // 		// url: 'https://rpc-mainnet.maticvigil.com/v1/6ca36da1323f40dc42d64ed9ba89da9a6f59c23d',
-    // 		// url: 'https://rpc-mainnet.matic.network',
-    // 		url: 'https://matic-mainnet.chainstacklabs.com',
-    // 		// url: 'https://rpc-mainnet.matic.quiknode.pro',
-    // 		// url: 'https://matic-mainnet-full-rpc.bwarelabs.com',
-    // 		// url: 'https://matic-mainnet-archive-rpc.bwarelabs.com',
-    // 		chainId: 137,
-    // 		from: process.env.DEDROPS_SERVER,
-    // 		accounts: [
-    // 			process.env.DEDROPS_PK,
-    // 			process.env.ETH_PK_1,
-    // 			process.env.ETH_PK_2
-    // 		]
-    // 	}
+    matic_mainnet: {
+      // url: 'https://rpc-mainnet.maticvigil.com/v1/6ca36da1323f40dc42d64ed9ba89da9a6f59c23d',
+      // url: 'https://rpc-mainnet.matic.network',
+      url: "https://matic-mainnet.chainstacklabs.com",
+      // url: 'https://rpc-mainnet.matic.quiknode.pro',
+      // url: 'https://matic-mainnet-full-rpc.bwarelabs.com',
+      // url: 'https://matic-mainnet-archive-rpc.bwarelabs.com',
+      chainId: 137,
+      from: process.env.DEDROPS_SERVER,
+      accounts: [
+        process.env.DEDROPS_PK_PRO,
+        process.env.ETH_PK_1,
+        process.env.ETH_PK_2,
+      ],
+    },
     // poligy
     poligy_testnet: {
       // url: 'https://rpc-mainnet.maticvigil.com/v1/6ca36da1323f40dc42d64ed9ba89da9a6f59c23d',
